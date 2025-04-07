@@ -5,7 +5,7 @@
     "compatibleAmmo": ["ammo57","ammocreative"],
     "damage": 4,
     "rpm": 850,
-    "fireModes": ["SINGLE", "AUTOMATIC"],
+    "fireModes": ["SINGLE", "AUTOMATIC", "BURST"],
     "fireSound": "ar57",
     "animationType": "rifle",
     "compatibleAttachments": [
