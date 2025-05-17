@@ -1,224 +1,283 @@
 {
+  //fixed PartVisibility
     "name": "scarl",
     "type": "Gun",
     "maxAmmoCapacity": 30,
-    "compatibleAmmo": ["ammo556","ammocreative"],
-    "damage": 5,
+    "compatibleAmmo": ["ammocreative", "ammo556"],
+    "damage": 5.0,
     "rpm": 650,
     "fireModes": ["SINGLE", "AUTOMATIC", "BURST"],
     "fireSound": "scarl_unsilenced",
     "animationType": "rifle",
+    "defaultAttachments": ["holographic558", "scarl_iss"],
     "compatibleAttachments": [
-        "cantedrail",
-        "fn40",
-        "ulg99cannon",
-        "m870modshotgun",
-        "scarl_iss"
+      "cantedrail",
+      "fn40",
+      "ulg99cannon",
+      "m870modshotgun",
+      "scarl_iss"
     ],
     "compatibleAttachmentGroups": [
-        "ar_sightsandscopes",
-        "ar_muzzle",
-        "underbarrel",
-        "underbarrel_2",
-        "scarl_skins"
+      "ar_sightsandscopes",
+      "underbarrel",
+      "underbarrel_2",
+      "ar_muzzle",
+      "scarl_skins"
     ],
-    "defaultAttachments": [
-        "holographic_em",
-        "scarl_iss"
-    ],
-    "gunRecoilInitialAmplitude" : 0.8,
-    "shakeRecoilAmplitude" : 0.35,
-    "shakeRecoilSpeed" : 2,
-    "viewRecoilAmplitude" : 1.6,
-    "phasedReloads": [
-        {
-            "phase": "RELOADING",
-            "condition": {
-                "allOf": [
-                    { "onEmptyReload": true },
-                    { "unselectedFireMode": "grenade_launcher" },
-                    { "unselectedFireMode": "laser_cannon" },
-                    { "unselectedFireMode": "shotgun" }
-                ]
-            },
-            "duration": 2350,
-            "animation": "animation.model.reloadempty"
-        },
-        {
-            "phase": "RELOADING",
-            "condition": {
-                "allOf": [
-                    { "onEmptyReload": false },
-                    { "unselectedFireMode": "grenade_launcher" },
-                    { "unselectedFireMode": "laser_cannon" },
-                    { "unselectedFireMode": "shotgun" }
-                ]
-            },
-            "duration": 1750,
-            "animation": "animation.model.reload"
-        },
-        {
-            "phase": "RELOADING",
-            "condition": {
-                "allOf": [
-                    { "selectedFireMode": "grenade_launcher" }
-                ]
-            },
-            "duration": 2150,
-            "animation": "animation.model.launcherreload"
-        },
-        {
-            "phase": "RELOADING",
-            "condition": {
-                "allOf": [
-                    { "selectedFireMode": "laser_cannon" }
-                ]
-            },
-            "duration": 2750,
-            "animation": "animation.model.laserreload"
-        },
-        {
-            "phase": "RELOADING",
-            "condition": {
-                "allOf": [
-                    { "onEmptyReload": false },
-                    { "selectedFireMode": "shotgun" }
-                ]
-            },
-            "duration": 2050,
-            "animation": "animation.model.shotgunreload"
-        },
-        {
-            "phase": "RELOADING",
-            "condition": {
-                "allOf": [
-                    { "onEmptyReload": true },
-                    { "selectedFireMode": "shotgun" }
-                ]
-            },
-            "duration": 2550,
-            "animation": "animation.model.shotgunreloadempty"
-        }
-    ],
+    "gunRecoilInitialAmplitude": 0.8,
+    "shakeRecoilAmplitude": 0.35,
+    "shakeRecoilSpeed": 2.0,
+    "viewRecoilAmplitude": 1.6,
     "drawAnimations": [
-        {
-            "name": "animation.model.draw",
-            "duration": 650
-        }
+      { "name": "animation.model.draw",    "duration": 600 }
     ],
     "inspectAnimations": [
-        {
-            "name": "animation.model.inspect",
-            "duration": 5500
-        }
+      { "name": "animation.model.inspect", "duration": 5480 }
+    ],
+    "phasedReloads": [
+      {
+        "phase": "RELOADING",
+        "condition": {
+          "allOf": [
+            { "onEmptyReload": true },
+            { "unselectedFireMode": "grenade_launcher" },
+            { "doesNotHaveAttachment": "fn40" },
+            { "unselectedFireMode": "laser_cannon" },
+            { "unselectedFireMode": "shotgun" }
+          ]
+        },
+        "duration": 2420,
+        "animation": "animation.model.reloadempty"
+      },
+      {
+        "phase": "RELOADING",
+        "condition": {
+          "allOf": [
+            { "onEmptyReload": false },
+            { "unselectedFireMode": "grenade_launcher" },
+            { "doesNotHaveAttachment": "fn40" },
+            { "unselectedFireMode": "laser_cannon" },
+            { "unselectedFireMode": "shotgun" }
+          ]
+        },
+        "duration": 1670,
+        "animation": "animation.model.reload"
+      },
+      {
+        "phase": "RELOADING",
+        "condition": {
+          "allOf": [
+            { "onEmptyReload": true },
+            { "unselectedFireMode": "grenade_launcher" },
+            { "hasAttachment": "fn40" },
+            { "unselectedFireMode": "laser_cannon" },
+            { "unselectedFireMode": "shotgun" }
+          ]
+        },
+        "duration": 2420,
+        "animation": "animation.model.reloademptyalt"
+      },
+      {
+        "phase": "RELOADING",
+        "condition": {
+          "allOf": [
+            { "onEmptyReload": false },
+            { "unselectedFireMode": "grenade_launcher" },
+            { "hasAttachment": "fn40" },
+            { "unselectedFireMode": "laser_cannon" },
+            { "unselectedFireMode": "shotgun" }
+          ]
+        },
+        "duration": 1980,
+        "animation": "animation.model.reloadalt"
+      },
+      {
+        "phase": "RELOADING",
+        "condition": {
+          "allOf": [
+            { "onEmptyReload": true },
+            { "selectedFireMode": "grenade_launcher" },
+            { "unselectedFireMode": "laser_cannon" },
+            { "unselectedFireMode": "shotgun" }
+          ]
+        },
+        "duration": 2130,
+        "animation": "animation.model.launcherreload"
+      },
+      {
+        "phase": "RELOADING",
+        "condition": {
+          "allOf": [
+            { "onEmptyReload": true },
+            { "selectedFireMode": "laser_cannon" },
+            { "unselectedFireMode": "grenade_launcher" },
+            { "unselectedFireMode": "shotgun" }
+          ]
+        },
+        "duration": 2670,
+        "animation": "animation.model.laserreload"
+      },
+      {
+        "phase": "RELOADING",
+        "condition": {
+          "allOf": [
+            { "onEmptyReload": false },
+            { "selectedFireMode": "laser_cannon" },
+            { "unselectedFireMode": "grenade_launcher" },
+            { "unselectedFireMode": "shotgun" }
+          ]
+        },
+        "duration": 2670,
+        "animation": "animation.model.laserreload"
+      },
+      {
+        "phase": "RELOADING",
+        "condition": {
+          "allOf": [
+            { "onEmptyReload": true },
+            { "selectedFireMode": "shotgun" },
+            { "unselectedFireMode": "grenade_launcher" },
+            { "unselectedFireMode": "laser_cannon" }
+          ]
+        },
+        "duration": 2420,
+        "animation": "animation.model.shotgunreloadempty"
+      },
+      {
+        "phase": "RELOADING",
+        "condition": {
+          "allOf": [
+            { "onEmptyReload": false },
+            { "selectedFireMode": "shotgun" },
+            { "unselectedFireMode": "grenade_launcher" },
+            { "unselectedFireMode": "laser_cannon" }
+          ]
+        },
+        "duration": 1970,
+        "animation": "animation.model.shotgunreload"
+      }
     ],
     "effects": [
-        {
-            "phase": "hit_scan_acquired",
-            "name": "tracer"
-        },
-        {
-            "phase": "firing",
-            "name": "muzzle_flash_small"
-        }
+      { "phase": "hit_scan_acquired", "name": "tracer" }
     ],
     "features": [
-        {
-            "type": "Aiming",
-            "zoom": 0.25,
-            "condition": {
-                "allOf": [
-                    { "doesNotHaveAttachmentGroup": "ar_sightsandscopes"},
-                    { "unselectedFireMode": "grenade_launcher"},
-                    { "unselectedFireMode": "laser_cannon"},
-                    { "unselectedFireMode": "shotgun"}
-                ]
-            }
-        },
-        {
-            "type": "Sound",
-            "fireSound": "scarl",
-            "fireSoundVolume": 1,
-            "condition": {
-                "allOf": [
-                    { "hasAttachmentGroup": "ar_suppressors"},
-                    { "unselectedFireMode": "grenade_launcher"},
-                    { "unselectedFireMode": "laser_cannon"},
-                    { "unselectedFireMode": "shotgun"}
-                ]
-            }
-        },
-        {
-            "type": "PartVisibility",
-            "parts": [
-                {
-                    "name": "sights",
-                    "visible": false,
-                    "condition": {
-                        "allOf": [{"hasAttachmentGroup": "ar_sightsandscopes"}]
-                    }
-                },
-                {
-                    "name": "rearsightflipped",
-                    "visible": true,
-                    "condition": {
-                        "allOf": [{"hasAttachmentGroup": "ar_sightsandscopes"}]
-                    }
-                },
-                {
-                    "name": "frontsightflipped",
-                    "visible": true,
-                    "condition": {
-                        "allOf": [{"hasAttachmentGroup": "ar_sightsandscopes"}]
-                    }
-                },
-                {
-                    "name": "launcher",
-                    "visible": true,
-                    "condition": {
-                        "allOf": [{"hasAttachment": "fn40"}]
-                    }
-                },
-                {
-                    "name": "shotgun",
-                    "visible": true,
-                    "condition": {
-                        "allOf": [{"hasAttachment": "m870modshotgun"}]
-                    }
-                },
-                {
-                    "name": "lasercannon",
-                    "visible": true,
-                    "condition": {
-                        "allOf": [{"hasAttachment": "ulg99cannon"}]
-                    }
-                },
-                {
-                    "name": "scarl_kit",
-                    "visible": false,
-                    "condition": {
-                        "allOf": [{"hasAttachment": "scarl_iss"}]
-                    }
-                }
-            ]
-        },
-        {
-            "type": "MuzzleFlash",
-            "effects": [
-                {
-                    "phase": "firing",
-                    "name": "muzzle_flash_small"
-                }
-            ],
-            "condition": {
-                "allOf": [
-                    { "doesNotHaveAttachmentGroup": "ar_suppressors"},
-                    { "unselectedFireMode": "grenade_launcher"},
-                    { "unselectedFireMode": "laser_cannon"},
-                    { "unselectedFireMode": "shotgun"}
-                ]
-            }
+      {
+        "type": "MuzzleFlash",
+        "effects": [
+          { "phase": "firing", "name": "muzzle_flash_small" }
+        ],
+        "condition": {
+          "allOf": [
+            { "doesNotHaveAttachmentGroup": "ar_suppressors" },
+            { "unselectedFireMode": "grenade_launcher" },
+            { "unselectedFireMode": "laser_cannon" },
+            { "unselectedFireMode": "shotgun" }
+          ]
         }
+      },
+      {
+        "type": "Aiming",
+        "zoom": 0.25,
+        "condition": {
+          "allOf": [
+            { "doesNotHaveAttachmentGroup": "ar_sightsandscopes" }
+          ]
+        }
+      },
+      {
+        "type": "PartVisibility",
+        "parts": [
+          {
+            "name": "rearsightflipped",
+            "visible": true,
+            "condition": {
+              "allOf": [
+                { "hasAttachmentGroup": "ar_sightsandscopes" }
+              ]
+            }
+          },
+          {
+            "name": "frontsightflipped",
+            "visible": true,
+            "condition": {
+              "allOf": [
+                { "hasAttachmentGroup": "ar_sightsandscopes" }
+              ]
+            }
+          },
+          {
+            "name": "frontsight",
+            "visible": false,
+            "condition": {
+              "allOf": [
+                { "hasAttachmentGroup": "ar_sightsandscopes" }
+              ]
+            }
+          },
+          {
+            "name": "rearsight",
+            "visible": false,
+            "condition": {
+              "allOf": [
+                { "hasAttachmentGroup": "ar_sightsandscopes" }
+              ]
+            }
+          },
+          {
+            "name": "scarl_kit",
+            "visible": false,
+            "condition": {
+              "allOf": [
+                { "hasAttachment": "scarl_iss" }
+              ]
+            }
+          },
+          {
+            "name": "launcher",
+            "visible": true,
+            "condition": {
+              "allOf": [
+                { "hasAttachment": "fn40" },
+                { "isGunInHands": true }
+              ]
+            }
+          },
+          {
+            "name": "lasercannon",
+            "visible": true,
+            "condition": {
+              "allOf": [
+                { "hasAttachment": "ulg99cannon" },
+                { "isGunInHands": true }
+              ]
+            }
+          },
+          {
+            "name": "shotgun",
+            "visible": true,
+            "condition": {
+              "allOf": [
+                { "hasAttachment": "m870modshotgun" },
+                { "isGunInHands": true }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "type": "Sound",
+        "fireSound": "scarl",
+        "fireSoundVolume": 1,
+        "condition": {
+          "allOf": [
+            { "hasAttachmentGroup": "ar_suppressors" },
+            { "unselectedFireMode": "grenade_launcher" }
+          ]
+        }
+      }
     ],
-    "glowingParts": [{"name": "glowy_new6"}]
-}
+    "glowingParts": [
+      { "name": "glowy_new6" }
+    ]
+  }
+  

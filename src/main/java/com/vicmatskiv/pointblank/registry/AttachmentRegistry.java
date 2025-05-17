@@ -26,7 +26,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.ItemLike;
 
 public class AttachmentRegistry {
-   public static final Supplier<AttachmentItem> MOA;
+   //public static final Supplier<AttachmentItem> MOA;
    public static final Supplier<AttachmentItem> DELTA;
    public static final Supplier<AttachmentItem> MOA_HG;
    public static final Supplier<AttachmentItem> OPERATORREFLEX;
@@ -86,7 +86,7 @@ public class AttachmentRegistry {
    }
 
    public static void registerTabItems(Consumer<ItemLike> entries) {
-      entries.accept(MOA.get());
+      //entries.accept(MOA.get());
       entries.accept(DELTA.get());
       entries.accept(MOA_HG.get());
       entries.accept(OPERATORREFLEX.get());
@@ -144,7 +144,7 @@ public class AttachmentRegistry {
    }
 
    static {
-      MOA = ItemRegistry.ITEMS.register((new AttachmentItem.Builder()).withName("moa").withCategory(AttachmentCategory.SCOPE).withGroup("sights_group", "ar_sightsandscopes", "sopmod_group", "m16_sightsandscopes", "deagle_sights", "snipers_sights", "sl8_sights", "sub_sight").withFeature((new ReticleFeature.Builder()).withTexture("textures/item/reticledot_new.png").withParallaxEnabled(true).withMaxAngularOffset(2.5F)).withFeature((new AimingFeature.Builder()).withZoom(0.3D)));
+      //MOA = ItemRegistry.ITEMS.register((new AttachmentItem.Builder()).withName("moa").withCategory(AttachmentCategory.SCOPE).withGroup("sights_group", "ar_sightsandscopes", "sopmod_group", "m16_sightsandscopes", "deagle_sights", "snipers_sights", "sl8_sights", "sub_sight").withFeature((new ReticleFeature.Builder()).withTexture("textures/item/reticledot_new.png").withParallaxEnabled(true).withMaxAngularOffset(2.5F)).withFeature((new AimingFeature.Builder()).withZoom(0.3D)));
       DELTA = ItemRegistry.ITEMS.register((new AttachmentItem.Builder()).withName("delta").withCategory(AttachmentCategory.SCOPE).withGroup("sights_group", "ar_sightsandscopes", "sopmod_group", "m16_sightsandscopes", "deagle_sights", "snipers_sights", "sl8_sights", "sub_sight").withFeature((new ReticleFeature.Builder()).withTexture("textures/item/reticledot_new.png").withParallaxEnabled(true).withMaxAngularOffset(5.0F)).withFeature((new AimingFeature.Builder()).withZoom(0.3D)));
       MOA_HG = ItemRegistry.ITEMS.register((new AttachmentItem.Builder()).withName("moa_hg").withCategory(AttachmentCategory.SCOPE).withGroup("hg_sights").withFeature((new ReticleFeature.Builder()).withTexture("textures/item/reticledot_new.png").withParallaxEnabled(true).withMaxAngularOffset(2.5F)).withFeature((new AimingFeature.Builder()).withZoom(0.3D)));
       OPERATORREFLEX = ItemRegistry.ITEMS.register((new AttachmentItem.Builder()).withName("operatorreflex").withCategory(AttachmentCategory.SCOPE).withGroup("sights_group", "ar_sightsandscopes", "m16_sightsandscopes", "deagle_sights", "snipers_sights", "sl8_sights", "sub_sight").withFeature((new ReticleFeature.Builder()).withTexture("textures/item/reticledot_new.png").withParallaxEnabled(true).withMaxAngularOffset(5.0F)).withFeature((new AimingFeature.Builder()).withZoom(0.3D)));

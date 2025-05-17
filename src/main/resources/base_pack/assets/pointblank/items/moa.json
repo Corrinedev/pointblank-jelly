@@ -1,0 +1,35 @@
+{
+  "name": "moa",
+  "type": "Attachment",
+  "category": "scope",
+
+  //isso aqui não é padrão, deve ser removido na build final
+  "bulletModifiers": {
+    "velocity": 0.6,
+    "gravity": 0.2,
+    "inaccuracy": 1.5
+  },
+  "groups": [
+    "sights_group",
+    "ar_sightsandscopes",
+    "sopmod_group",
+    "m16_sightsandscopes",
+    "deagle_sights",
+    "snipers_sights",
+    "sl8_sights",
+    "sub_sight"
+  ],
+  "features": [
+    {
+      "type": "Aiming",
+      "zoom":0.3
+    },
+    {
+      "type": "Reticle",
+      "texture": "textures/item/reticledot_new.png",
+      "parallax": true
+    }
+  ]
+}
+
+

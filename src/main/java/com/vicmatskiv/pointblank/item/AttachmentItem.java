@@ -66,7 +66,11 @@ public final class AttachmentItem extends Item implements ScriptHolder, GeoItem,
    private List<Component> descriptionLines;
    public List<Supplier<Attachment>> defaultAttachmentSuppliers;
    private @org.jetbrains.annotations.Nullable Script script;
+   private JsonObject bulletModifiers = new JsonObject();
 
+   public JsonObject getBulletModifiers() {
+      return this.bulletModifiers;
+   }
    public AttachmentItem() {
       super(new Item.Properties());
       SingletonGeoAnimatable.registerSyncedAnimatable(this);
@@ -217,6 +221,12 @@ public final class AttachmentItem extends Item implements ScriptHolder, GeoItem,
       private final List<Supplier<Attachment>> defaultAttachments = new ArrayList<>();
       private @org.jetbrains.annotations.Nullable Script script;
 
+      private JsonObject bulletModifiers = new JsonObject();
+
+      public JsonObject getBulletModifiers() {
+         return this.bulletModifiers;
+      }
+
       public Builder(ExtensionRegistry.Extension extension) {
          this.extension = extension;
       }
@@ -319,6 +329,9 @@ public final class AttachmentItem extends Item implements ScriptHolder, GeoItem,
          this.withScript(JsonUtil.getJsonScript(obj));
          List<String> groups = JsonUtil.getStrings(obj, "groups");
          this.groups.addAll(groups);
+         if (obj.has("bulletModifiers")) {
+            this.bulletModifiers = obj.getAsJsonObject("bulletModifiers");
+         }
 
          for(JsonObject featureObj : JsonUtil.getJsonObjects(obj, "features")) {
             FeatureBuilder<?, ?> featureBuilder = Features.fromJson(featureObj);
@@ -377,6 +390,7 @@ public final class AttachmentItem extends Item implements ScriptHolder, GeoItem,
             attachment.tradeBundleQuantity = this.tradeBundleQuantity;
             attachment.tradeLevel = this.tradeLevel;
             attachment.defaultAttachmentSuppliers = Collections.unmodifiableList(this.defaultAttachments);
+            attachment.bulletModifiers = this.bulletModifiers;
             return attachment;
          }
       }

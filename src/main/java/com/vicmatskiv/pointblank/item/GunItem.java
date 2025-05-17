@@ -1414,14 +1414,29 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
                if(this.hitscan)
                   hitResults.addAll(HitScan.getObjectsInCrosshair(player, eyePos, lookVec, 0.0F, maxHitScanDistance, shotCount, adjustedInaccuracy, xorSeed, this.getDestroyBlockByHitScanPredicate(), this.getPassThroughBlocksByHitScanPredicate(), blockPosToDestroy));
                else {
+                  //---- bulletModifiers but for attachments :)
+                  //not sure how to add in description
+                  // "bulletModifiers": { good or not?
+                  //    "velocity": 0.6,  you can use '-' to decrease
+                  //    "gravity": 0.2,
+                  //    "inaccuracy": 1.5
+                  //  },
+                  BulletData modifiedData = this.bulletData;
+
+                  for (ItemStack attachmentStack : Attachments.getAttachments(itemStack)) {
+                     if (attachmentStack.getItem() instanceof AttachmentItem attItem) {
+                        modifiedData = modifiedData.applyModifiers(attItem.getBulletModifiers());
+                     }
+                  }
+
                   for (int i = 0; i < shotCount; i++) {
-                     float speed = this.bulletData.speedOffset() + Mth.clamp((fireModeInstance.getDamage() * shotCount) / (this.bulletData.velocity() + 1f), 0, this.bulletData.maxSpeedOffset());
-                     ProjectileBulletEntity bullet;
+                     float speed = modifiedData.speedOffset() + Mth.clamp((fireModeInstance.getDamage() * shotCount) / (modifiedData.velocity() + 1f), 0, modifiedData.maxSpeedOffset());
                      float damage = fireModeInstance.getDamage();
-                     bullet = new ProjectileBulletEntity(player, player.level(), damage, speed, shotCount, fireModeInstance.getMaxShootingDistance());
+
+                     ProjectileBulletEntity bullet = new ProjectileBulletEntity(player, player.level(), damage, speed, shotCount, fireModeInstance.getMaxShootingDistance());
                      bullet.setOwner(player);
-                     bullet.setBulletGravity(this.bulletData.gravity()); // (￣o￣) . z Z
-                     bullet.shootFromRotation(bullet, player.getXRot(), player.getYRot(), 0.0F, speed, (float) adjustedInaccuracy * this.bulletData.inaccuracy());
+                     bullet.setBulletGravity(modifiedData.gravity());
+                     bullet.shootFromRotation(bullet, player.getXRot(), player.getYRot(), 0.0F, speed, (float) adjustedInaccuracy * modifiedData.inaccuracy());
                      player.level().addFreshEntity(bullet);
                   }
                }
