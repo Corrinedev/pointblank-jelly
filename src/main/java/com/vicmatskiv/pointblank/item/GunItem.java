@@ -430,7 +430,14 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
    }
 
    public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
-      tooltip.add(Component.translatable("label.pointblank.damage").append(": ").append(String.format("%.2f", this.getDamage())).withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC));
+      FireModeInstance currentFireMode = getFireModeInstance(stack);
+      if (currentFireMode != null && currentFireMode.getPelletCount() > 0) {
+         tooltip.add(Component.translatable("label.pointblank.damage").append(": ").append(String.format("%.2f (%.2fx%d)", (currentFireMode.getDamage()*currentFireMode.getPelletCount()), currentFireMode.getDamage(), currentFireMode.getPelletCount())).withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC));
+      } else if (currentFireMode != null) {
+         tooltip.add(Component.translatable("label.pointblank.damage").append(": ").append(String.format("%.2f", currentFireMode.getDamage())).withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC));
+      } else {
+         tooltip.add(Component.translatable("label.pointblank.damage").append(": ").append(String.format("%.2f", this.getDamage())).withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC));
+      }
       tooltip.add(Component.translatable("label.pointblank.rpm").append(": ").append(String.format("%d", this.rpm)).withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC));
       MutableComponent ammoDescription = Component.translatable("label.pointblank.ammo").append(": ");
       boolean isFirst = true;

@@ -11,7 +11,7 @@
   "fireModes": ["SINGLE"],
   "fireSound": "m870",
   "drawCooldownDuration": 900,
-  "inspectCooldownDuration": 3030,
+  "inspectCooldownDuration": 3430,
   "gunRecoilInitialAmplitude": 1.2,
   "shakeRecoilAmplitude": 2.0,
   "shakeRecoilSpeed": 1.5,
