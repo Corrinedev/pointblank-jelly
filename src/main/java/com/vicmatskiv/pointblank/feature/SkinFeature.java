@@ -37,7 +37,7 @@ public class SkinFeature extends ConditionalFeature {
    public static ResourceLocation getTexture(ItemStack itemStack) {
       Features.EnabledFeature enabledSkinTexture = Features.getFirstEnabledFeature(itemStack, SkinFeature.class);
       if(enabledSkinTexture != null && enabledSkinTexture.feature() instanceof SkinFeature feature) {
-         if (!feature.conditions.isEmpty()) {
+         if (feature.conditions != null && !feature.conditions.isEmpty()) {
             Predicate<ConditionContext> condition = (ctx) -> true;
             for (var entry : feature.conditions.entrySet()) {
                GunClientState gunState = GunClientState.getMainHeldState(ClientUtils.getClientPlayer());
