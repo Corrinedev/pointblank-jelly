@@ -2,6 +2,7 @@ package mod.pbj;
 
 import mod.pbj.client.ClientEventHandler;
 import mod.pbj.client.GunClientState;
+import mod.pbj.client.commands.TestCommand;
 import mod.pbj.client.effect.EffectBuilder;
 import mod.pbj.client.effect.EffectLauncher;
 import mod.pbj.crafting.PointBlankRecipeProvider;
@@ -16,6 +17,7 @@ import mod.pbj.network.Network;
 import mod.pbj.registry.*;
 import mod.pbj.script.ScriptParser;
 import mod.pbj.util.*;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
@@ -39,6 +41,7 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
@@ -66,6 +69,9 @@ import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.network.PacketDistributor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.mojang.brigadier.CommandDispatcher;
+
 import software.bernie.geckolib.GeckoLib;
 import software.bernie.geckolib.core.molang.LazyVariable;
 import software.bernie.geckolib.core.molang.MolangParser;
@@ -125,6 +131,15 @@ public class PointBlankJelly {
       Network.setupNetworkChannel();
 
    }
+
+	@Mod.EventBusSubscriber(modid = "pointblank", bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+	public static class ClientModEvents {
+		@SubscribeEvent
+		public static void RegisterClientCommandsEvent(RegisterClientCommandsEvent event) {
+			CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
+			TestCommand.register(dispatcher);
+		}
+	}
 
    public static void registerMolang() {
       MolangParser.INSTANCE.register(new LazyVariable(AMMO, 0));

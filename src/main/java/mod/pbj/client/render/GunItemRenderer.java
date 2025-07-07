@@ -12,7 +12,6 @@ import mod.pbj.client.GunStatePoseProvider.PoseContext;
 import mod.pbj.client.controller.GlowAnimationController;
 import mod.pbj.client.controller.RotationAnimationController;
 import mod.pbj.client.effect.EffectRenderContext;
-import mod.pbj.client.effect.MuzzleFlashEffect;
 import mod.pbj.client.gui.AttachmentManagerScreen;
 import mod.pbj.client.model.GunGeoModel;
 import mod.pbj.client.render.layer.*;
@@ -31,6 +30,7 @@ import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -293,7 +293,17 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
                texV = vertex.texV();
             }
 
-            buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, texU, texV, packedOverlay, packedLight, normal.x(), normal.y(), normal.z());
+			// kept getting IllegalStateException from the (BufferBuilder/VertexConsumer).vertex method
+			// retrying solves the issue
+            try {
+				buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, texU, texV, packedOverlay, packedLight, normal.x(), normal.y(), normal.z());
+			} catch (final IllegalStateException e) {
+				final var player = Minecraft.getInstance().player;
+				if (player != null)
+					player.sendSystemMessage(Component.nullToEmpty("[GunItemRenderer.createVerticesOfQuad] buffer.vertex() failed, retrying"));
+				--i;
+				continue;
+			}
          }
 
       }
@@ -380,11 +390,13 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
                this.renderGlow(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
                break;
             case HANDS:
-               if (bone.getName().equals("rightarm")) {
-                  this.renderRightArm(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-               } else if (bone.getName().equals("leftarm")) {
-                  this.renderLeftArm(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-               }
+			// hands not needed in vr, make this configurable
+
+            //    if (bone.getName().equals("rightarm")) {
+            //       this.renderRightArm(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+            //    } else if (bone.getName().equals("leftarm")) {
+            //       this.renderLeftArm(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+            //    }
                break;
             case PIP:
                if (bone.getName().equals("scopepip")) {
@@ -402,12 +414,15 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
                }
                break;
             case RETICLE:
-               boolean isParallaxEnabled = ReticleItemLayer.isParallaxEnabled();
-               if (isParallaxEnabled && bone.getName().equals("reticle")) {
-                  this.renderReticleWithParallax(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress, hrc.getAttribute("max_angular_offset_cos", DEFAULT_MAX_ANGULAR_RETICLE_OFFSET));
-               } else if (!isParallaxEnabled && bone.getName().equals("scope")) {
-                  this.renderReticle(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, aimingProgress);
-               }
+			// reticle not needed in vr (crosshair suffices), but people probably want it
+			// make this configurable (parallax, non-parallax, disabled)
+
+            //    boolean isParallaxEnabled = ReticleItemLayer.isParallaxEnabled();
+            //    if (isParallaxEnabled && bone.getName().equals("reticle")) {
+            //       this.renderReticleWithParallax(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress, hrc.getAttribute("max_angular_offset_cos", DEFAULT_MAX_ANGULAR_RETICLE_OFFSET));
+            //    } else if (!isParallaxEnabled && bone.getName().equals("scope")) {
+                //   this.renderReticle(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, aimingProgress);
+            //    }
                break;
             case MUZZLE_FLASH:
                if (bone.getName().equals("muzzleflash") || bone.getName().equals("muzzleflash2") || bone.getName().equals("muzzleflash3")) {
@@ -454,13 +469,6 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
             position = position.mul(0.5F);
             position = position.add(v1Position);
             EffectRenderContext context = (new EffectRenderContext()).withPoseStack(poseStack).withPosition(new Vec3(position.x, position.y, position.z)).withVertexBuffer(buffer).withLightColor(packedLight);
-
-            // for(MuzzleFlashEffect effect : this.gunClientState.getMuzzleFlashEffects()) {
-            //    UUID effectId = EffectRegistry.getEffectId(effect.getName());
-            //    if (Objects.equal(effectId, RenderPass.getEffectId())) {
-            //       effect.render(context);
-            //    }
-            // }
 
 			// avoid ConcurrentModificationException by not using ArrayList.iterator()
 			final var muzzleFlashEffects = this.gunClientState.getMuzzleFlashEffects();
