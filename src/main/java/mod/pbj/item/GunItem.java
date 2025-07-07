@@ -1459,10 +1459,10 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
                double maxHitScanDistance = this.getMaxServerShootingDistance(itemStack, isAiming, level);
                List<BlockPos> blockPosToDestroy = new ArrayList<>();
                if(this.hitscan) {
-				  LOGGER.trace("[GunItem.handleClientHitScanFireRequest] in hitscan case");
+				  LOGGER.debug("[GunItem.handleClientHitScanFireRequest] in hitscan case");
                   hitResults.addAll(HitScan.getObjectsInCrosshair(player, eyePos, lookVec, 0.0F, maxHitScanDistance, shotCount, adjustedInaccuracy, xorSeed, this.getDestroyBlockByHitScanPredicate(), this.getPassThroughBlocksByHitScanPredicate(), blockPosToDestroy));
                } else { // PBJ code to fire projectile bullets instead of hitscan
-				  LOGGER.trace("[GunItem.handleClientHitScanFireRequest] in projectile case");
+				  LOGGER.debug("[GunItem.handleClientHitScanFireRequest] in projectile case");
                   BulletData modifiedBulletData = this.bulletData;
                   List<Features.EnabledFeature> modifiers = Features.getEnabledFeatures(itemStack, BulletModifierFeature.class);
                   for (Features.EnabledFeature feature : modifiers) {
@@ -1483,11 +1483,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
                      bullet = new ProjectileBulletEntity(player, player.level(), damage, speed, shotCount, fireModeInstance.getMaxShootingDistance(), fireModeInstance.getHeadshotMultiplier(), itemStack, correlationId);
                      bullet.setOwner(player);
                      bullet.setBulletGravity(modifiedBulletData.gravity());
-					 // by default the bullets actually fire a bit below the crosshair
-					 // we need decrease the x rotation (?) to compensate
-					 // TODO: detect vr before applying
-					 final var vrXRotation = -3.25f;
-                     bullet.shootFromRotation(bullet, player.getXRot() + vrXRotation, player.getYRot(), 0.0F, speed, (float) adjustedInaccuracy * modifiedBulletData.inaccuracy());
+                     bullet.shootFromRotation(bullet, player.getXRot(), player.getYRot(), 0.0F, speed, (float) adjustedInaccuracy * modifiedBulletData.inaccuracy());
                      player.level().addFreshEntity(bullet);
                   }
 

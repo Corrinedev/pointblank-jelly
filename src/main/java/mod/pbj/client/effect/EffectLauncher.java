@@ -169,18 +169,8 @@ public class EffectLauncher implements GunStateListener {
                   }
 
                   EffectBuilder.Context effectBuilderContext = (new EffectBuilder.Context()).withGunState(gunClientState).withStartPosition(startPosition).withDistance(distanceToTarget).withRandomization(0.0F).withVertexConsumerTransformer(VertexConsumers.PARTICLE).withPoseProvider(poseProvider).withPositionProvider(positionProvider).withDamage(damage).withHitResult(hitResult);
-                  if (builder.getName().equals("tracer")) {
-                    LOGGER.debug("[EffectLauncher.applyPhaseEffects] 'tracer' effect detected");
-                    effectBuilderContext
-                        .withStartPosition(startPosition.add(tracerTranslation));
-                        // TODO: i KNOW this is the right spot to rotate the tracer, because the startPosition
-                        // modification above works. however, withRotation, withPositionProvider, and withPoseProvider
-                        // all do absolutely nothing to the rotation. what to do????????? until this is fixed, the tracer
-                        // is always slightly pointed below the actual bullet's path (which i've modified to be pointed at 
-                        // the vivecraft crosshair).
-                  }
                   Effect effect = builder.build(effectBuilderContext);
-                  LOGGER.debug("[EffectLauncher.applyPhaseEffects] Launching effect '{}'", effect.getName());
+				  LOGGER.debug("[EffectLauncher.applyPhaseEffects] Launching effect '{}'", effect.getName());
                   effect.launch(player);
                }
 
