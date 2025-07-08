@@ -11,6 +11,10 @@
     {
       "type": "Recoil",
       "recoilModifier": 0.6
+    },
+    {
+      "type": "AdsSpeed",
+      "adsModifier": 1.2
     }
   ]
 }

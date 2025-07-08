@@ -5,6 +5,7 @@
     "compatibleAmmo": ["ammocreative", "ammo50bmg"],
     "damage": 35.0,
     "rpm": 100,
+    "adsSpeed": 650,
     "fireModes": ["SINGLE"],
     "fireSound": "gm6lynx",
     "animationType": "rifle",

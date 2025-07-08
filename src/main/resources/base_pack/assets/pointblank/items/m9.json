@@ -5,6 +5,7 @@
     "compatibleAmmo": ["ammo9mm","ammocreative"],
     "damage": 3.5,
     "rpm": 900,
+    "adsSpeed": 350,
     "fireSound": "m9",
     "animationType": "pistol",
     "script": "m9_stock_script",

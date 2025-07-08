@@ -8,6 +8,7 @@
   "pelletSpread": 0.15,
   "damage": 2.5,
   "rpm": 100,
+  "adsSpeed": 500,
   "fireModes": ["SINGLE"],
   "fireSound": "m870",
   "drawCooldownDuration": 900,

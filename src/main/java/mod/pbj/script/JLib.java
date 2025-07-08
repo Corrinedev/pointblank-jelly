@@ -1,21 +1,6 @@
 package mod.pbj.script;
 
-import mod.pbj.Config;
 import mod.pbj.PointBlankJelly;
-import mod.pbj.attachment.AttachmentHost;
-import mod.pbj.attachment.Attachments;
-import mod.pbj.feature.ConditionContext;
-import mod.pbj.feature.Feature;
-import mod.pbj.feature.Features;
-import mod.pbj.item.ArmorItem;
-import mod.pbj.item.AttachmentItem;
-import mod.pbj.item.GunItem;
-import mod.pbj.registry.AmmoRegistry;
-import mod.pbj.util.ClientUtil;
-import mod.pbj.util.Conditions;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -31,9 +16,6 @@ import static mod.pbj.script.ScriptParser.scope;
 public final class JLib {
     public static final Logger LOGGER = Logger.getLogger("PBJ-Scripts");
     static final Class<?>[] DEFAULT_IMPORTS = new Class[] {
-            GunItem.class, ConditionContext.class, Conditions.class, ArmorItem.class, ItemStack.class, Item.class, Features.class,
-            ClientUtil.class, Config.class, Feature.class, PointBlankJelly.class, System.class, Consumer.class, Class.class, Attachments.class,
-            AttachmentItem.class, AttachmentHost.class, PointBlankJelly.class, MinecraftForge.class, Mth.class, AmmoRegistry.class
     };
     public static void jImport(String... obj) {
         String startPkg = obj[0];

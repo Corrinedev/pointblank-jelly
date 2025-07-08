@@ -6,6 +6,7 @@
     "compatibleAmmo": ["ammocreative", "grenade40mm"],
     "damage": 5,
     "rpm": 111,
+    "adsSpeed": 600,
     "fireModes": ["SINGLE"],
     "fireSound": "mgl_shoot",
     "drawCooldownDuration": 930,

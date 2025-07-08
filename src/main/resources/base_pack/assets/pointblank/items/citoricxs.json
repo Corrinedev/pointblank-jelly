@@ -8,6 +8,7 @@
   "pelletSpread": 0.1,
   "damage": 1.5,
   "rpm": 400,
+  "adsSpeed": 350,
   "fireModes": ["SINGLE"],
   "fireSound": "citoricxs",
   "drawCooldownDuration": 800,

@@ -5,6 +5,7 @@
     "compatibleAmmo": ["ammocreative", "ammo762x51"],
     "damage": 22.0,
     "rpm": 181,
+    "adsSpeed": 600,
     "fireModes": ["SINGLE"],
     "fireSound": "wa2000",
     "animationType": "rifle",

@@ -18,6 +18,10 @@ public record ConditionContext(LivingEntity player, ItemStack rootStack, ItemSta
       this(player, null, gunClientState, null);
    }
 
+   public ConditionContext(LivingEntity player, ItemStack stack, GunClientState gunClientState) {
+      this(player, stack, gunClientState, null);
+   }
+
    public ConditionContext(ItemStack itemStack) {
       this(null, itemStack, itemStack, null, null);
    }

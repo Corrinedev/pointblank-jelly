@@ -20,6 +20,10 @@
     {
       "type": "Aiming",
       "zoom": 0.5
+    },
+    {
+      "type": "AdsSpeed",
+      "adsModifier": 1.5
     }
   ]
 }

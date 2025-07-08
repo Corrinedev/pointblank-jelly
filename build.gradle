@@ -54,7 +54,7 @@ minecraft {
         client {
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             property 'forge.enabledGameTestNamespaces', mod_id
-            args '--username', 'Client2'
+            args '--username', 'Client1'
         }
 
         client2 {
@@ -85,6 +85,7 @@ mixin {
 
     config "${mod_id}.mixins.json"
     config "${mod_id}.mixins.compat.iris.json"
+    config "${mod_id}.mixins.compat.iris16.json"
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
@@ -127,7 +128,8 @@ dependencies {
     implementation("com.eliotlash.mclib:mclib:20")
     compileOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
     compileOnly(fg.deobf("dev.kosmx.player-anim:player-animation-lib-forge:1.0.2"))
-    compileOnly(fg.deobf("curse.maven:oculus-581495:6020952"))
+    implementation(fg.deobf("curse.maven:oculus-581495:6020952"))
+    implementation fg.deobf("curse.maven:embeddium-908741:5681725")
     runtimeOnly(fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}"))
     implementation fg.deobf("curse.maven:playeranimator-658587:4587214")
     implementation fg.deobf("curse.maven:mmmmmmmmmmmm-225738:6608233")

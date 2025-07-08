@@ -10,6 +10,10 @@
         {
             "type": "Accuracy",
             "accuracyModifier": 3.0
+        },
+        {
+            "type": "AdsSpeed",
+            "adsModifier": 1.1
         }
     ]
 }

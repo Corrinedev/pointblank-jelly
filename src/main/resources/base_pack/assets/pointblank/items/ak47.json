@@ -5,6 +5,7 @@
     "compatibleAmmo": ["ammo545","ammocreative"],
     "damage": 6,
     "rpm": 650,
+    "adsSpeed": 450,
     "fireModes": ["SINGLE", "AUTOMATIC"],
     "fireSound": "ak47",
     "animationType": "rifle",

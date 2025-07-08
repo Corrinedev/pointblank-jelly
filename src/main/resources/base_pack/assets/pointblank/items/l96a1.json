@@ -5,6 +5,7 @@
     "compatibleAmmo": ["ammocreative", "ammo338lapua"],
     "damage": 28.0,
     "rpm": 58,
+    "adsSpeed": 500,
     "fireModes": ["SINGLE"],
     "fireSound": "l96a1",
     "animationType": "rifle",

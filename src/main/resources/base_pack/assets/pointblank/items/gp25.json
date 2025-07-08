@@ -74,6 +74,10 @@
         "selectedFireMode": "grenade_launcher"
       },
       "recoilModifier": 1.1
+    },
+    {
+      "type": "AdsSpeed",
+      "adsModifier": 1.15
     }
   ]
 }

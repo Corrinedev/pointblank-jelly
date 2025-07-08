@@ -2,6 +2,7 @@ package mod.pbj.client;
 
 import mod.pbj.client.render.RenderListener;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
@@ -34,7 +35,11 @@ public interface GunStateListener extends RenderListener {
    default void onCompleteReloading(LivingEntity player, GunClientState state, ItemStack itemStack) {
    }
 
-   default void onToggleAiming(boolean isAiming) {
+   default void onToggleAiming(boolean isAiming, Player player) {
+   }
+
+   default void onAttachmentAdded(LivingEntity player, GunClientState state, ItemStack itemStack, ItemStack attachmentStack) {
+
    }
 
    default void onDrawing(LivingEntity player, GunClientState state, ItemStack itemStack) {

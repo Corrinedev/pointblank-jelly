@@ -5,8 +5,10 @@
     "compatibleAmmo": ["ammocreative", "ammo46"],
     "damage": 4.0,
     "rpm": 950,
+    "adsSpeed": 350,
     "fireModes": ["SINGLE", "AUTOMATIC"],
     "fireSound": "mp7",
+    "fireAnimation": "animation.model.fire",
     "animationType": "rifle",
     "defaultAttachments": [],
     "compatibleAttachments": [

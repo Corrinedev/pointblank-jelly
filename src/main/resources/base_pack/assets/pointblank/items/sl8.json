@@ -5,6 +5,7 @@
     "compatibleAmmo": ["ammo556","ammocreative"],
     "damage": 8,
     "rpm": 550,
+    "adsSpeed": 500,
     "fireModes": ["SINGLE"],
     "fireSound": "g36c",
     "animationType": "rifle",
@@ -19,10 +20,10 @@
         "underbarrel_2",
         "sl8_skins"
     ],
-    "gunRecoilInitialAmplitude" : 1.2,
-    "shakeRecoilAmplitude" : 0.3,
+    "gunRecoilInitialAmplitude" : 1.0,
+    "shakeRecoilAmplitude" : 0.25,
     "shakeRecoilSpeed" : 1.8,
-    "viewRecoilAmplitude" : 2.0,
+    "viewRecoilAmplitude" : 1.85,
     "phasedReloads": [
         {
             "phase": "RELOADING",

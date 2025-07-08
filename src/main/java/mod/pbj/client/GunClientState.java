@@ -11,6 +11,7 @@ import mod.pbj.util.ClientUtil;
 import mod.pbj.util.MiscUtil;
 import mod.pbj.util.StateMachine;
 import mod.pbj.util.StateMachine.TransitionMode;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -596,7 +597,14 @@ public class GunClientState {
 
    private void toggleAiming(boolean isAiming) {
       for(GunStateListener listener : this.stateListeners) {
-         listener.onToggleAiming(isAiming);
+         listener.onToggleAiming(isAiming, Minecraft.getInstance().player);
+      }
+
+   }
+
+   public void callAttachmentListener(ItemStack gunStack, ItemStack attachmentStack) {
+      for(GunStateListener listener : this.stateListeners) {
+         listener.onAttachmentAdded(Minecraft.getInstance().player, this, gunStack, attachmentStack);
       }
 
    }

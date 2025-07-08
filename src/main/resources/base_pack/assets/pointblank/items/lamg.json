@@ -5,6 +5,7 @@
   "compatibleAmmo": ["ammocreative", "ammo556"],
   "damage": 5.0,
   "rpm": 600,
+  "adsSpeed": 500,
   "fireModes": ["SINGLE", "AUTOMATIC", "BURST"],
   "fireSound": "lamg",
   "reloadSound": "reload",

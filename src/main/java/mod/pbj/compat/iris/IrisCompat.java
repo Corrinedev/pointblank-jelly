@@ -1,11 +1,12 @@
 package mod.pbj.compat.iris;
 
 import mod.pbj.client.render.RenderTypeProvider;
-import java.lang.reflect.InvocationTargetException;
 import net.minecraftforge.fml.loading.LoadingModList;
 import net.minecraftforge.fml.loading.moddiscovery.ModFileInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.lang.reflect.InvocationTargetException;
 
 public abstract class IrisCompat {
    private static final Logger LOGGER = LogManager.getLogger("pointblank");
@@ -21,9 +22,9 @@ public abstract class IrisCompat {
          if (shadersModFileInfo != null) {
             String irisClassName;
             if (shadersModFileInfo.versionString().startsWith("1.6.")) {
-               irisClassName = "iris.compat.mod.pbj.IrisCompatImpl16";
+               irisClassName = "mod.pbj.compat.iris.IrisCompatImpl16";
             } else {
-               irisClassName = "iris.compat.mod.pbj.IrisCompatImpl";
+               irisClassName = "mod.pbj.compat.iris.IrisCompatImpl";
             }
 
             try {

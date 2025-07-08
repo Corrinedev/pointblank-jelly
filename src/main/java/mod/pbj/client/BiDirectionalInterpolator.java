@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class BiDirectionalInterpolator implements GunStateListener {
    private long startTime;
-   private final long fullDuration;
+   private long fullDuration;
    private long duration;
    private boolean isDone;
    private Position targetPosition;
@@ -18,6 +18,14 @@ public class BiDirectionalInterpolator implements GunStateListener {
       this.fullDuration = durationMillis * 1000000L;
       this.isDone = true;
       this.set(Position.START, true);
+   }
+
+   public void setFullDuration(long msDuration) {
+      this.fullDuration = msDuration * 1000000L;
+   }
+
+   public long getDurationMS() {
+      return this.fullDuration / 1000000L;
    }
 
    public double getValue() {

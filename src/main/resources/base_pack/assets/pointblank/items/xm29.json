@@ -5,6 +5,7 @@
   "compatibleAmmo": ["ammocreative", "ammo556"],
   "damage": 5,
   "rpm": 800,
+  "adsSpeed": 500,
   "fireSound": "xm29",
   "animationType": "rifle",
   "compatibleAttachments": [

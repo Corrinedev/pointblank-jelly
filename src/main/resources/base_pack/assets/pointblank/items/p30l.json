@@ -5,6 +5,7 @@
     "compatibleAmmo": ["ammo9mm","ammocreative"],
     "damage": 3.5,
     "rpm": 800,
+    "adsSpeed": 350,
     "fireModes": ["SINGLE"],
     "fireSound": "p30l",
     "animationType": "pistol",

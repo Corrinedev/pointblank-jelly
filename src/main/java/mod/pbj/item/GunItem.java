@@ -209,6 +209,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
    private final double inaccuracy;
    private final double inaccuracyAiming;
    private final double inaccuracySprinting;
+   public long adsSpeed;
    private final List<Tuple<Long, AbstractProceduralAnimationController>> reloadEffectControllers;
    private final List<GlowAnimationController.Builder> glowEffectBuilders;
    private final List<RotationAnimationController.Builder> rotationEffectBuilders;
@@ -242,6 +243,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
       this.tradePrice = builder.tradePrice;
       this.tradeLevel = builder.tradeLevel;
       this.hitscan = builder.hitscan;
+      this.adsSpeed = builder.adsSpeed;
       this.tradeBundleQuantity = builder.tradeBundleQuantity;
       this.script = builder.mainScript;
       this.maxAmmoCapacity = builder.maxAmmoCapacity;
@@ -1753,8 +1755,9 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 
       state.addListener(new DynamicGeoListener());
       state.addListener(this.effectLauncher);
-      state.setAnimationController("aiming", new BiDirectionalInterpolator(400L) {
-         public void onToggleAiming(boolean isAiming) {
+      state.setAnimationController("aiming", new BiDirectionalInterpolator(this.adsSpeed) {
+         public void onToggleAiming(boolean isAiming, Player player) {
+            setFullDuration(AdsSpeedFeature.getTotalAdsSpeed(player.getMainHandItem(), player, state));
             this.set(isAiming ? Position.END : Position.START, false);
          }
       });
@@ -2357,6 +2360,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
       private static final float DEFAULT_BOBBING_ROLL_MULTIPLIER = 1.0F;
       public boolean hitscan = false;
       public BulletData bulletData;
+      public long adsSpeed;
       private long targetLockTimeTicks;
       private double viewRecoilAmplitude = 1.0F;
       private double shakeRecoilAmplitude = 0.5F;
@@ -2463,6 +2467,11 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 
       public Builder withHitscan(boolean hitscan) {
          this.hitscan = hitscan;
+         return this;
+      }
+
+      public Builder withAdsSpeed(long adsSpeed) {
+         this.adsSpeed = adsSpeed;
          return this;
       }
 
@@ -2990,6 +2999,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
          super.withJsonObject(obj);
          Builder builder = this;
          this.withScript(JsonUtil.getJsonScript(obj));
+         this.withAdsSpeed(JsonUtil.getJsonInt(obj, "adsSpeed", 400));
          this.withName(obj.getAsJsonPrimitive("name").getAsString());
          this.withAnimationType((AnimationType)JsonUtil.getEnum(obj, "animationType", AnimationType.class, AnimationType.RIFLE, true));
          this.withFirstPersonFallbackAnimations(JsonUtil.getJsonString(obj, "firstPersonFallbackAnimations", null));

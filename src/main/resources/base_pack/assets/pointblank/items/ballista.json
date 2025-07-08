@@ -4,6 +4,7 @@
   "maxAmmoCapacity": 10,
   "compatibleAmmo": ["ammocreative", "ammo338lapua"],
   "damage": 28.0,
+  "adsSpeed": 550,
   "rpm": 56,
   "fireModes": ["SINGLE"],
   "fireSound": "ballista",

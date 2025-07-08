@@ -5,6 +5,7 @@
     "compatibleAmmo": ["ammocreative", "ammo9mm"],
     "damage": 3.5,
     "rpm": 800,
+    "adsSpeed": 350,
     "fireModes": ["SINGLE", "AUTOMATIC"],
     "fireSound": "mp5",
   

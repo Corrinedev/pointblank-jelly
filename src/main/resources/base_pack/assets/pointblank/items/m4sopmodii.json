@@ -80,7 +80,7 @@
                     { "selectedFireMode": "shotgun" }
                 ]
             },
-            "duration": 2050,
+            "duration": 2450,
             "animation": "animation.model.shotgunreload"
         },
         {
@@ -91,7 +91,7 @@
                     { "selectedFireMode": "shotgun" }
                 ]
             },
-            "duration": 2550,
+            "duration": 2850,
             "animation": "animation.model.shotgunreloadempty"
         }
     ],

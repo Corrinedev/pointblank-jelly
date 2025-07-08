@@ -5,6 +5,7 @@
   "compatibleAmmo": ["ammocreative", "ammo762x51"],
   "damage": 7.0,
   "rpm": 700,
+  "adsSpeed": 500,
   "fireModes": ["AUTOMATIC"],
   "fireSound": "mk48",
   "reloadSound": "reload",

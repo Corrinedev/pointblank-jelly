@@ -1,6 +1,7 @@
 {
     "name": "ak12",
     "type": "Gun",
+    "adsSpeed": 375,
     "maxAmmoCapacity": 30,
     "compatibleAmmo": [
       "ammocreative",

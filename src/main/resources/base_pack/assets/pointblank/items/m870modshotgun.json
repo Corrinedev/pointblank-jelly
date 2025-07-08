@@ -92,6 +92,10 @@
             "condition": {
                 "selectedFireMode": "shotgun"
             }
+        },
+        {
+            "type": "AdsSpeed",
+            "adsModifier": 1.15
         }
     ]
 }

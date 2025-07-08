@@ -3,8 +3,6 @@ package mod.pbj;
 import mod.pbj.client.ClientEventHandler;
 import mod.pbj.client.GunClientState;
 import mod.pbj.client.commands.TestCommand;
-import mod.pbj.client.effect.EffectBuilder;
-import mod.pbj.client.effect.EffectLauncher;
 import mod.pbj.crafting.PointBlankRecipeProvider;
 import mod.pbj.entity.ItemsAndEmeraldsToItems;
 import mod.pbj.event.AttachmentRemovedEvent;
@@ -16,9 +14,11 @@ import mod.pbj.network.ClientBoundPlayerDataSyncPacket;
 import mod.pbj.network.Network;
 import mod.pbj.registry.*;
 import mod.pbj.script.ScriptParser;
-import mod.pbj.util.*;
+import mod.pbj.util.InventoryUtils;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.Direction;
+import mod.pbj.util.MiscUtil;
+import mod.pbj.util.ServerTaskScheduler;
+import mod.pbj.util.Tradeable;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -26,8 +26,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.Containers;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -364,23 +362,24 @@ public class PointBlankJelly {
 
    @SubscribeEvent
    public void onLivingDeath(LivingDeathEvent event) {
-      DamageSource damageSource = event.getSource();
-      if (damageSource != null) {
-         Entity entity = damageSource.getEntity();
-         if (entity instanceof Player player) {
-             if (!MiscUtil.getLevel(player).isClientSide) {
-               GunClientState state = GunClientState.getMainHeldState(player);
-               if (state != null) {
-                  LivingEntity targetEntity = event.getEntity();
+      //Temporary fix, causes crash on dedicated servers
 
-                  for(Supplier<EffectBuilder<? extends EffectBuilder<?, ?>, ?>> effect : EffectRegistry.getEntityDeathEffects(targetEntity)) {
-                     Vec3 targetPos = targetEntity.getBoundingBox().getCenter();
-                     EffectLauncher.broadcast(effect, player, state, targetEntity, new SimpleHitResult(targetPos, net.minecraft.world.phys.HitResult.Type.ENTITY, Direction.DOWN, targetEntity.getId()));
-                  }
-               }
-            }
-         }
-      }
-
+      //DamageSource damageSource = event.getSource();
+      //if (damageSource != null) {
+      //   Entity entity = damageSource.getEntity();
+      //   if (entity instanceof Player player) {
+      //       if (!event.getEntity().level().isClientSide) {
+      //         GunClientState state = GunClientState.getMainHeldState(player);
+      //         if (state != null) {
+      //            LivingEntity targetEntity = event.getEntity();
+//
+      //            for(Supplier<EffectBuilder<? extends EffectBuilder<?, ?>, ?>> effect : EffectRegistry.getEntityDeathEffects(targetEntity)) {
+      //               Vec3 targetPos = targetEntity.getBoundingBox().getCenter();
+      //               EffectLauncher.broadcast(effect, player, state, targetEntity, new SimpleHitResult(targetPos, net.minecraft.world.phys.HitResult.Type.ENTITY, Direction.DOWN, targetEntity.getId()));
+      //            }
+      //         }
+      //      }
+      //   }
+      //}
    }
 }

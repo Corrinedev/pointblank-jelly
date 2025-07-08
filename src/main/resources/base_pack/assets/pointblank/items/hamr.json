@@ -38,6 +38,10 @@
           }
         }
       ]
+    },
+    {
+      "type": "AdsSpeed",
+      "adsModifier": 1.2
     }
   ]
 }

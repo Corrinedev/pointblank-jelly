@@ -5,6 +5,7 @@
   "compatibleAmmo": ["ammo762x51","ammocreative"],
   "damage": 12,
   "rpm": 500,
+  "adsSpeed": 500,
   "fireModes": ["SINGLE"],
   "fireSound": "uar10",
   "animationType": "rifle",
