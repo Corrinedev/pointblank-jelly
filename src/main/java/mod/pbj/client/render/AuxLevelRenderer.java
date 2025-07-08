@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.pbj.Config;
+import mod.pbj.client.commands.TestCommand;
 import mod.pbj.compat.iris.IrisCompat;
 import mod.pbj.feature.PipFeature;
 import mod.pbj.item.GunItem;
@@ -102,7 +103,9 @@ public class AuxLevelRenderer {
                RenderSystem.clear(0, Minecraft.ON_OSX);
                this.renderTarget.clear(false);
                this.renderTarget.bindWrite(false);
-               mc.gameRenderer.renderLevel(partialTick, time + 10000L, new PoseStack());
+			   // TODO: only do this in vr
+            //    mc.gameRenderer.renderLevel(partialTick, time + 10000L, new PoseStack());
+			   mc.gameRenderer.renderZoomed(zoom * TestCommand.zoomMultiplier, 0, 0);
             } finally {
                mc.gameRenderer.setPanoramicMode(false);
                mc.gameRenderer.setRenderBlockOutline(true);

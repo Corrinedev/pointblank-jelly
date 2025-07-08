@@ -371,6 +371,9 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
    }
 
    public void renderCubesOfBone(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+	// TODO: only do this in vr
+	  if (ClientSystem.getInstance().getAuxLevelRenderer().isRenderingPip())
+	  	return;
       RenderPass renderPass = RenderPass.current();
       if (this.shouldRenderBone(bone.getName())) {
          HierarchicalRenderContext hrc = HierarchicalRenderContext.current();
@@ -405,7 +408,8 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
                break;
             case PIP_OVERLAY:
                if (bone.getName().equals("scopepip")) {
-                  this.renderPipOverlay(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress, PipItemLayer.isParallaxEnabled());
+                  this.renderPipOverlay(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress,
+				  	/*PipItemLayer.isParallaxEnabled()*/ false); // TODO: only do this in vr
                }
                break;
             case PIP_MASK:
