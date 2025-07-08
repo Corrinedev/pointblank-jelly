@@ -44,9 +44,9 @@ public class Config {
    public static final BooleanValue PLAYERHEADSHOTS;
    public static final BooleanValue MOBHEADSHOTS;
    public static final IntValue IFRAMES;
-   private static final ConfigValue<ReticleRenderType> RETICLE_RENDER_TYPE;
-   private static final ConfigValue<ReticleRenderType> PIP_OVERLAY_RENDER_TYPE;
-   private static final BooleanValue HANDS_ENABLED;
+   public static final ConfigValue<ReticleRenderType> PIP_OVERLAY_RENDER_TYPE;
+   public static final BooleanValue HANDS_ENABLED;
+   public static final BooleanValue RETICLES_ENABLED;
 
    public static AutoReload autoReload;
    public static double scopeAimingMouseSensitivity;
@@ -77,9 +77,6 @@ public class Config {
    public static boolean thirdPersonAnimationsEnabled;
    public static boolean playerHeadshots;
    public static boolean mobHeadshots;
-   public static ReticleRenderType reticleRenderType;
-   public static ReticleRenderType pipOverlayRenderType;
-   public static boolean handsEnabled;
 
    @SubscribeEvent
    static void onLoad(ModConfigEvent event) {
@@ -112,9 +109,6 @@ public class Config {
       playerHeadshots = PLAYERHEADSHOTS.get();
       mobHeadshots = MOBHEADSHOTS.get();
       iframes = IFRAMES.get();
-	  reticleRenderType = RETICLE_RENDER_TYPE.get();
-	  pipOverlayRenderType = PIP_OVERLAY_RENDER_TYPE.get();
-	  handsEnabled = HANDS_ENABLED.get();
    }
 
    static {
@@ -147,9 +141,11 @@ public class Config {
       THIRD_PERSON_ANIMATIONS_ENABLED = BUILDER.comment("Enables advanced third person animations").define("thirdPersonAnimationsEnabled", true);
       PLAYERHEADSHOTS = BUILDER.comment("Enables player headshots, recommended to disable if using FirstAid").define("playerHeadshots", true);
       MOBHEADSHOTS = BUILDER.comment("Enables mob headshots").define("playerHeadshots", true);
-	  RETICLE_RENDER_TYPE = BUILDER.comment("How to render optic reticles").defineEnum("reticleRenderType", ReticleRenderType.PARALLAX);
-	  PIP_OVERLAY_RENDER_TYPE = BUILDER.comment("How to render pip overlays").defineEnum("pipOverlayRenderType", ReticleRenderType.PARALLAX);
+	  PIP_OVERLAY_RENDER_TYPE = BUILDER
+	     .comment("How to render pip overlays (PARALLAX, NON_PARALLAX, or DISABLED)")
+		 .defineEnum("pipOverlayRenderType", ReticleRenderType.PARALLAX);
 	  HANDS_ENABLED = BUILDER.comment("Whether to render hands holding gun").define("handsEnabled", true);
+	  RETICLES_ENABLED = BUILDER.comment("Whether to render reticles on red-dot sights/scopes").define("reticlesEnabled", true);
 
       SPEC = BUILDER.build();
    }

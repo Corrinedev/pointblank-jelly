@@ -370,11 +370,9 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
       super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
    }
 
-   private static final List<String> ALLOWED_RETICLE_BONE_NAMES = List.of("reticle", "scope");
-
    public void renderCubesOfBone(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
     // i don't think it makes sense to see your gun through its scope,
-	// regardless of whether we are in VR or not
+    // regardless of whether we are in VR or not
       if (ClientSystem.getInstance().getAuxLevelRenderer().isRenderingPip())
           return;
       RenderPass renderPass = RenderPass.current();
@@ -396,7 +394,7 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
                this.renderGlow(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
                break;
            case HANDS:
-               if (!Config.handsEnabled)
+               if (!Config.HANDS_ENABLED.get())
                    break;
                switch (bone.getName()) {
                    case "rightarm" -> this.renderRightArm(poseStack, bone, buffer, packedLight, packedOverlay, red,
@@ -413,7 +411,7 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
            case PIP_OVERLAY:
                if (!bone.getName().equals("scopepip"))
                    break;
-               switch (Config.pipOverlayRenderType) {
+               switch (Config.PIP_OVERLAY_RENDER_TYPE.get()) {
                    case PARALLAX ->
                        this.renderPipOverlay(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress,
                                PipItemLayer.isParallaxEnabled());
@@ -430,20 +428,13 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
                }
                break;
             case RETICLE:
-                if (!ALLOWED_RETICLE_BONE_NAMES.contains(bone.getName()))
+                if (!Config.RETICLES_ENABLED.get())
                     break;
-
-                switch (Config.reticleRenderType) {
-                    case PARALLAX -> {
-                        if (ReticleItemLayer.isParallaxEnabled())
-                            this.renderReticleWithParallax(poseStack, bone, buffer, packedLight, red, green,
-                                    blue, aimingProgress,
-                                    hrc.getAttribute("max_angular_offset_cos", DEFAULT_MAX_ANGULAR_RETICLE_OFFSET));
-                    }
-                    case NON_PARALLAX -> this.renderReticle(poseStack, bone, buffer, packedLight, packedOverlay, red,
-                            green, blue, aimingProgress);
-                    case DISABLED -> {
-                    }
+                final var isParallaxEnabled = ReticleItemLayer.isParallaxEnabled();
+                if (isParallaxEnabled && bone.getName().equals("reticle")) {
+                    this.renderReticleWithParallax(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress, hrc.getAttribute("max_angular_offset_cos", DEFAULT_MAX_ANGULAR_RETICLE_OFFSET));
+                } else if (!isParallaxEnabled && bone.getName().equals("scope")) {
+                    this.renderReticle(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, aimingProgress);
                 }
                 break;
             case MUZZLE_FLASH:

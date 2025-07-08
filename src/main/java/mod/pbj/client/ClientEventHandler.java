@@ -310,6 +310,7 @@ public class ClientEventHandler {
             this.leftMouseButtonDown = leftMouseButtonDown;
             boolean rightMouseButtonDown = mc.options.keyUse.isDown();
             final var vrActive = VivecraftClientAPI.getInstance().isVrActive();
+			// maybe make this configurable if requested
             if (!vrActive)
                 if (rightMouseButtonDown && !this.rightMouseButtonDown) {
                     this.rightMouseButtonDown();

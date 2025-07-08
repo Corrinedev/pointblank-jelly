@@ -19,6 +19,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
+import org.vivecraft.api_beta.client.VivecraftClientAPI;
+
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
 import software.bernie.geckolib.util.ClientUtils;
@@ -103,9 +105,18 @@ public class AuxLevelRenderer {
                RenderSystem.clear(0, Minecraft.ON_OSX);
                this.renderTarget.clear(false);
                this.renderTarget.bindWrite(false);
-			   // TODO: only do this in vr
-            //    mc.gameRenderer.renderLevel(partialTick, time + 10000L, new PoseStack());
-			   mc.gameRenderer.renderZoomed(zoom * TestCommand.zoomMultiplier, 0, 0);
+				if (VivecraftClientAPI.getInstance().isVrActive())
+					// renderLevel and this.fov have no effect in VR, we have to use renderZoomed instead.
+					// even changing GameRendererMixin.modifyFov has no effect.
+					// WARNING: too high of a zoomMultiplier causes the game to hang! values up to 10 are safe.
+					// unfortunately, this makes the pipscopes feel more like a passthrough than a magnifier,
+					// so i don't think it's worth scaling by the scope's zoom value (the `zoom` parameter in this method).
+					// but hey, this is way better than it being a copy of the normal eye camera.
+					// i'm not sure if the hangs are due to my hardware; this needs testing on another machine.
+					// to test values run `/pbj zoomMultiplier <value>` in game.
+					mc.gameRenderer.renderZoomed(TestCommand.zoomMultiplier, 0, 0);
+				else
+                	mc.gameRenderer.renderLevel(partialTick, time + 10000L, new PoseStack());
             } finally {
                mc.gameRenderer.setPanoramicMode(false);
                mc.gameRenderer.setRenderBlockOutline(true);
