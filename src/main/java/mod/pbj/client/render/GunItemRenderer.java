@@ -293,17 +293,17 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
                texV = vertex.texV();
             }
 
-			// kept getting IllegalStateException from the (BufferBuilder/VertexConsumer).vertex method
-			// retrying solves the issue
+            // kept getting IllegalStateException from the (BufferBuilder/VertexConsumer).vertex method
+            // retrying solves the issue
             try {
-				buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, texU, texV, packedOverlay, packedLight, normal.x(), normal.y(), normal.z());
-			} catch (final IllegalStateException e) {
-				final var player = Minecraft.getInstance().player;
-				if (player != null)
-					player.sendSystemMessage(Component.nullToEmpty("[GunItemRenderer.createVerticesOfQuad] buffer.vertex() failed, retrying"));
-				--i;
-				continue;
-			}
+                buffer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, texU, texV, packedOverlay, packedLight, normal.x(), normal.y(), normal.z());
+            } catch (final IllegalStateException e) {
+                final var player = Minecraft.getInstance().player;
+                if (player != null)
+                    player.sendSystemMessage(Component.nullToEmpty("[GunItemRenderer.createVerticesOfQuad] buffer.vertex() failed, retrying"));
+                --i;
+                continue;
+            }
          }
 
       }
@@ -370,10 +370,13 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
       super.renderRecursively(poseStack, animatable, bone, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
    }
 
+   private static final List<String> ALLOWED_RETICLE_BONE_NAMES = List.of("reticle", "scope");
+
    public void renderCubesOfBone(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-	// TODO: only do this in vr
-	  if (ClientSystem.getInstance().getAuxLevelRenderer().isRenderingPip())
-	  	return;
+    // i don't think it makes sense to see your gun through its scope,
+	// regardless of whether we are in VR or not
+      if (ClientSystem.getInstance().getAuxLevelRenderer().isRenderingPip())
+          return;
       RenderPass renderPass = RenderPass.current();
       if (this.shouldRenderBone(bone.getName())) {
          HierarchicalRenderContext hrc = HierarchicalRenderContext.current();
@@ -392,24 +395,33 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
             case GLOW:
                this.renderGlow(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
                break;
-            case HANDS:
-			// hands not needed in vr, make this configurable
-
-            //    if (bone.getName().equals("rightarm")) {
-            //       this.renderRightArm(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-            //    } else if (bone.getName().equals("leftarm")) {
-            //       this.renderLeftArm(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-            //    }
+           case HANDS:
+               if (!Config.handsEnabled)
+                   break;
+               switch (bone.getName()) {
+                   case "rightarm" -> this.renderRightArm(poseStack, bone, buffer, packedLight, packedOverlay, red,
+                           green, blue, alpha);
+                   case "leftarm" ->
+                       this.renderLeftArm(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+               }
                break;
             case PIP:
                if (bone.getName().equals("scopepip")) {
                   this.renderPip(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress);
                }
                break;
-            case PIP_OVERLAY:
-               if (bone.getName().equals("scopepip")) {
-                  this.renderPipOverlay(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress,
-				  	/*PipItemLayer.isParallaxEnabled()*/ false); // TODO: only do this in vr
+           case PIP_OVERLAY:
+               if (!bone.getName().equals("scopepip"))
+                   break;
+               switch (Config.pipOverlayRenderType) {
+                   case PARALLAX ->
+                       this.renderPipOverlay(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress,
+                               PipItemLayer.isParallaxEnabled());
+                   case NON_PARALLAX ->
+                       this.renderPipOverlay(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress,
+                               false);
+                   case DISABLED -> {
+                   }
                }
                break;
             case PIP_MASK:
@@ -418,16 +430,22 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
                }
                break;
             case RETICLE:
-			// reticle not needed in vr (crosshair suffices), but people probably want it
-			// make this configurable (parallax, non-parallax, disabled)
+                if (!ALLOWED_RETICLE_BONE_NAMES.contains(bone.getName()))
+                    break;
 
-            //    boolean isParallaxEnabled = ReticleItemLayer.isParallaxEnabled();
-            //    if (isParallaxEnabled && bone.getName().equals("reticle")) {
-            //       this.renderReticleWithParallax(poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress, hrc.getAttribute("max_angular_offset_cos", DEFAULT_MAX_ANGULAR_RETICLE_OFFSET));
-            //    } else if (!isParallaxEnabled && bone.getName().equals("scope")) {
-                //   this.renderReticle(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, aimingProgress);
-            //    }
-               break;
+                switch (Config.reticleRenderType) {
+                    case PARALLAX -> {
+                        if (ReticleItemLayer.isParallaxEnabled())
+                            this.renderReticleWithParallax(poseStack, bone, buffer, packedLight, red, green,
+                                    blue, aimingProgress,
+                                    hrc.getAttribute("max_angular_offset_cos", DEFAULT_MAX_ANGULAR_RETICLE_OFFSET));
+                    }
+                    case NON_PARALLAX -> this.renderReticle(poseStack, bone, buffer, packedLight, packedOverlay, red,
+                            green, blue, aimingProgress);
+                    case DISABLED -> {
+                    }
+                }
+                break;
             case MUZZLE_FLASH:
                if (bone.getName().equals("muzzleflash") || bone.getName().equals("muzzleflash2") || bone.getName().equals("muzzleflash3")) {
                   this.renderMuzzleFlash(poseStack, bone, buffer, packedLight);
@@ -474,15 +492,15 @@ public class GunItemRenderer extends GeoItemRenderer<GunItem> implements RenderP
             position = position.add(v1Position);
             EffectRenderContext context = (new EffectRenderContext()).withPoseStack(poseStack).withPosition(new Vec3(position.x, position.y, position.z)).withVertexBuffer(buffer).withLightColor(packedLight);
 
-			// avoid ConcurrentModificationException by not using ArrayList.iterator()
-			final var muzzleFlashEffects = this.gunClientState.getMuzzleFlashEffects();
-			for (int i = 0; i < muzzleFlashEffects.size(); ++i) {
-				final var effect = muzzleFlashEffects.get(i);
-				UUID effectId = EffectRegistry.getEffectId(effect.getName());
-				if (Objects.equal(effectId, RenderPass.getEffectId())) {
-					effect.render(context);
-				}
-			}
+            // avoid ConcurrentModificationException by not using ArrayList.iterator()
+            final var muzzleFlashEffects = this.gunClientState.getMuzzleFlashEffects();
+            for (int i = 0; i < muzzleFlashEffects.size(); ++i) {
+                final var effect = muzzleFlashEffects.get(i);
+                UUID effectId = EffectRegistry.getEffectId(effect.getName());
+                if (Objects.equal(effectId, RenderPass.getEffectId())) {
+                    effect.render(context);
+                }
+            }
          }
 
       }

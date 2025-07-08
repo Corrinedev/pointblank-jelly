@@ -13,36 +13,41 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 )
 public class Config {
    private static final Builder BUILDER = new Builder();
+   public static final ForgeConfigSpec SPEC;
+
    public static final ConfigValue<AutoReload> AUTO_RELOAD;
    private static final DoubleValue SCOPE_AIMING_MOUSE_SENSITIVITY;
    private static final BooleanValue RESET_AUTO_FIRE_PITCH_ENABLED;
    private static final DoubleValue KNOCKBACK;
    private static final BooleanValue PARTICLE_EFFECTS_ENABLED;
-   public static final BooleanValue OVERWRITE_DISABLED;
+   private static final BooleanValue OVERWRITE_DISABLED;
    private static final IntValue ARMS_DEALER_HOUSE_WEIGHT;
    private static final DoubleValue EMERALD_EXCHANGE_RATE;
    private static final BooleanValue THIRD_PERSON_ARM_POSE_ALWAYS_ON;
    private static final IntValue PIP_SCOPE_REFRESH_FRAME;
-   public static final BooleanValue PIP_SCOPES_ENABLED;
+   private static final BooleanValue PIP_SCOPES_ENABLED;
    private static final IntValue PIP_SCOPE_COLOR_BALANCE_RED;
    private static final IntValue PIP_SCOPE_COLOR_BALANCE_GREEN;
    private static final IntValue PIP_SCOPE_COLOR_BALANCE_BLUE;
-   public static final BooleanValue CUSTOM_SHADERS_ENABLED;
-   public static final BooleanValue EXPLOSION_DESTROY_BLOCKS_ENABLED;
+   private static final BooleanValue CUSTOM_SHADERS_ENABLED;
+   private static final BooleanValue EXPLOSION_DESTROY_BLOCKS_ENABLED;
    private static final DoubleValue ITEM_DROP_CHANCE;
    private static final IntValue MAX_ITEM_DROP_COUNT;
-   public static final BooleanValue BULLETS_BREAK_GLASS_ENABLED;
+   private static final BooleanValue BULLETS_BREAK_GLASS_ENABLED;
    private static final DoubleValue HITSCAN_DAMAGE_MODIFIER;
    private static final DoubleValue HEADSHOT_DAMAGE_MODIFIER;
-   public static final ConfigValue<CrosshairType> CROSSHAIR_TYPE;
-   public static final BooleanValue GORE_ENABLED;
-   public static final BooleanValue ADVANCE_IRIS_INTEGRATION_ENABLED;
-   public static final BooleanValue FIRST_PERSON_ANIMATIONS_ENABLED;
-   public static final BooleanValue THIRD_PERSON_ANIMATIONS_ENABLED;
+   private static final ConfigValue<CrosshairType> CROSSHAIR_TYPE;
+   private static final BooleanValue GORE_ENABLED;
+   private static final BooleanValue ADVANCE_IRIS_INTEGRATION_ENABLED;
+   private static final BooleanValue FIRST_PERSON_ANIMATIONS_ENABLED;
+   private static final BooleanValue THIRD_PERSON_ANIMATIONS_ENABLED;
    public static final BooleanValue PLAYERHEADSHOTS;
    public static final BooleanValue MOBHEADSHOTS;
-   static final ForgeConfigSpec SPEC;
-   private static final IntValue IFRAMES;
+   public static final IntValue IFRAMES;
+   private static final ConfigValue<ReticleRenderType> RETICLE_RENDER_TYPE;
+   private static final ConfigValue<ReticleRenderType> PIP_OVERLAY_RENDER_TYPE;
+   private static final BooleanValue HANDS_ENABLED;
+
    public static AutoReload autoReload;
    public static double scopeAimingMouseSensitivity;
    public static boolean resetAutoFirePitchEnabled;
@@ -72,6 +77,9 @@ public class Config {
    public static boolean thirdPersonAnimationsEnabled;
    public static boolean playerHeadshots;
    public static boolean mobHeadshots;
+   public static ReticleRenderType reticleRenderType;
+   public static ReticleRenderType pipOverlayRenderType;
+   public static boolean handsEnabled;
 
    @SubscribeEvent
    static void onLoad(ModConfigEvent event) {
@@ -104,6 +112,9 @@ public class Config {
       playerHeadshots = PLAYERHEADSHOTS.get();
       mobHeadshots = MOBHEADSHOTS.get();
       iframes = IFRAMES.get();
+	  reticleRenderType = RETICLE_RENDER_TYPE.get();
+	  pipOverlayRenderType = PIP_OVERLAY_RENDER_TYPE.get();
+	  handsEnabled = HANDS_ENABLED.get();
    }
 
    static {
@@ -136,6 +147,10 @@ public class Config {
       THIRD_PERSON_ANIMATIONS_ENABLED = BUILDER.comment("Enables advanced third person animations").define("thirdPersonAnimationsEnabled", true);
       PLAYERHEADSHOTS = BUILDER.comment("Enables player headshots, recommended to disable if using FirstAid").define("playerHeadshots", true);
       MOBHEADSHOTS = BUILDER.comment("Enables mob headshots").define("playerHeadshots", true);
+	  RETICLE_RENDER_TYPE = BUILDER.comment("How to render optic reticles").defineEnum("reticleRenderType", ReticleRenderType.PARALLAX);
+	  PIP_OVERLAY_RENDER_TYPE = BUILDER.comment("How to render pip overlays").defineEnum("pipOverlayRenderType", ReticleRenderType.PARALLAX);
+	  HANDS_ENABLED = BUILDER.comment("Whether to render hands holding gun").define("handsEnabled", true);
+
       SPEC = BUILDER.build();
    }
 
@@ -151,4 +166,10 @@ public class Config {
       VANILLA,
       DISABLED
       }
+	
+	public enum ReticleRenderType {
+		DISABLED,
+		NON_PARALLAX,
+		PARALLAX
+	}
 }
