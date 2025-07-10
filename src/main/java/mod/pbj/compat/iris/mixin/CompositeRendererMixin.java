@@ -1,12 +1,12 @@
 package mod.pbj.compat.iris.mixin;
 
 import com.google.common.collect.ImmutableMap;
-import mod.pbj.Config;
-import mod.pbj.compat.iris.IriaAuxIndexHolder;
-import mod.pbj.compat.iris.IrisShaderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import java.util.Set;
 import java.util.function.Supplier;
+import mod.pbj.Config;
+import mod.pbj.compat.iris.IriaAuxIndexHolder;
+import mod.pbj.compat.iris.IrisShaderUtil;
 import net.irisshaders.iris.gl.buffer.ShaderStorageBufferHolder;
 import net.irisshaders.iris.gl.image.GlImage;
 import net.irisshaders.iris.gl.texture.TextureAccess;
@@ -29,23 +29,37 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin({CompositeRenderer.class})
 public class CompositeRendererMixin {
-   @Inject(
-      method = {"<init>"},
-      at = {@At("TAIL")}
-   )
-   private void onInit(WorldRenderingPipeline pipeline, PackDirectives packDirectives, ProgramSource[] sources, ComputeSource[][] computes, RenderTargets renderTargets, ShaderStorageBufferHolder holder, TextureAccess noiseTexture, FrameUpdateNotifier updateNotifier, CenterDepthSampler centerDepthSampler, BufferFlipper bufferFlipper, Supplier<ShadowRenderTargets> shadowTargetsSupplier, TextureStage textureStage, Object2ObjectMap<String, TextureAccess> customTextureIds, Object2ObjectMap<String, TextureAccess> irisCustomTextures, Set<GlImage> customImages, ImmutableMap<Integer, Boolean> explicitPreFlips, CustomUniforms customUniforms, CallbackInfo ci) {
-      if (textureStage == TextureStage.COMPOSITE_AND_FINAL) {
-         if (!Config.advancedIrisIntegrationEnabled) {
-            return;
-         }
+	@Inject(method = {"<init>"}, at = { @At("TAIL") })
+	private void onInit(
+		WorldRenderingPipeline pipeline,
+		PackDirectives packDirectives,
+		ProgramSource[] sources,
+		ComputeSource[][] computes,
+		RenderTargets renderTargets,
+		ShaderStorageBufferHolder holder,
+		TextureAccess noiseTexture,
+		FrameUpdateNotifier updateNotifier,
+		CenterDepthSampler centerDepthSampler,
+		BufferFlipper bufferFlipper,
+		Supplier<ShadowRenderTargets> shadowTargetsSupplier,
+		TextureStage textureStage,
+		Object2ObjectMap<String, TextureAccess> customTextureIds,
+		Object2ObjectMap<String, TextureAccess> irisCustomTextures,
+		Set<GlImage> customImages,
+		ImmutableMap<Integer, Boolean> explicitPreFlips,
+		CustomUniforms customUniforms,
+		CallbackInfo ci) {
+		if (textureStage == TextureStage.COMPOSITE_AND_FINAL) {
+			if (!Config.advancedIrisIntegrationEnabled) {
+				return;
+			}
 
-         int auxRenderTargetIndex = IrisShaderUtil.findAvailableRenderTarget(packDirectives, renderTargets);
-         if (auxRenderTargetIndex > 0) {
-            IriaAuxIndexHolder.value.set(auxRenderTargetIndex);
-         } else {
-            IriaAuxIndexHolder.value.remove();
-         }
-      }
-
-   }
+			int auxRenderTargetIndex = IrisShaderUtil.findAvailableRenderTarget(packDirectives, renderTargets);
+			if (auxRenderTargetIndex > 0) {
+				IriaAuxIndexHolder.value.set(auxRenderTargetIndex);
+			} else {
+				IriaAuxIndexHolder.value.remove();
+			}
+		}
+	}
 }

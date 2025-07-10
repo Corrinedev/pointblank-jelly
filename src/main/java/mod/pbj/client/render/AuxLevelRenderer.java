@@ -44,7 +44,7 @@ public class AuxLevelRenderer {
 
 	public RenderTarget getRenderTarget() {
 		// if (vivecraftClient.currentPass == org.vivecraft.client_vr.render.RenderPass.SCOPER)
-			return vivecraftClient.vrRenderer.telescopeFramebufferR;
+		return vivecraftClient.vrRenderer.telescopeFramebufferR;
 		// return this.renderTarget;
 	}
 

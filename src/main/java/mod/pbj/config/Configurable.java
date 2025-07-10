@@ -1,5 +1,5 @@
 package mod.pbj.config;
 
 public interface Configurable {
-   void configure(ConfigManager.Builder var1);
+	void configure(ConfigManager.Builder var1);
 }

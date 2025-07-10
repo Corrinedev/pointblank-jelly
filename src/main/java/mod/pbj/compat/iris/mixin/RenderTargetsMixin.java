@@ -7,10 +7,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin({RenderTargets.class})
 public class RenderTargetsMixin implements RenderTargetsExt {
-   @Shadow
-   private boolean fullClearRequired;
+	@Shadow private boolean fullClearRequired;
 
-   public void setPointblankRenderFullClearRequired(boolean fullClearRequired) {
-      this.fullClearRequired = fullClearRequired;
-   }
+	public void setPointblankRenderFullClearRequired(boolean fullClearRequired) {
+		this.fullClearRequired = fullClearRequired;
+	}
 }

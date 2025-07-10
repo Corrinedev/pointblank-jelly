@@ -14,30 +14,30 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class PrinterItem extends BlockItem implements GeoItem {
-   private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
+	private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
-   public PrinterItem(Block block, Properties properties) {
-      super(block, properties);
-   }
+	public PrinterItem(Block block, Properties properties) {
+		super(block, properties);
+	}
 
-   public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-      consumer.accept(new IClientItemExtensions() {
-         private GeoItemRenderer<PrinterItem> renderer = null;
+	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+		consumer.accept(new IClientItemExtensions() {
+			private GeoItemRenderer<PrinterItem> renderer = null;
 
-         public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-            if (this.renderer == null) {
-               this.renderer = new GeoItemRenderer<>(new DefaultedBlockGeoModel<>(new ResourceLocation("pointblank", "printer")));
-            }
+			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+				if (this.renderer == null) {
+					this.renderer = new GeoItemRenderer<>(
+						new DefaultedBlockGeoModel<>(new ResourceLocation("pointblank", "printer")));
+				}
 
-            return this.renderer;
-         }
-      });
-   }
+				return this.renderer;
+			}
+		});
+	}
 
-   public void registerControllers(ControllerRegistrar controllers) {
-   }
+	public void registerControllers(ControllerRegistrar controllers) {}
 
-   public AnimatableInstanceCache getAnimatableInstanceCache() {
-      return this.geoCache;
-   }
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.geoCache;
+	}
 }

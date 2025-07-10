@@ -1,9 +1,9 @@
 package mod.pbj.block;
 
+import javax.annotation.Nullable;
 import mod.pbj.block.entity.PrinterBlockEntity;
 import mod.pbj.block.entity.PrinterBlockEntity.State;
 import mod.pbj.registry.BlockEntityRegistry;
-import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -29,57 +29,74 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class PrinterBlock extends BaseEntityBlock implements EntityBlock {
-   public static final DirectionProperty FACING;
+	public static final DirectionProperty FACING;
 
-   public PrinterBlock() {
-      super(Properties.of().mapColor(MapColor.METAL).instrument(NoteBlockInstrument.IRON_XYLOPHONE).requiresCorrectToolForDrops().strength(1.0F, 2.0F).sound(SoundType.METAL).noOcclusion());
-   }
+	public PrinterBlock() {
+		super(Properties.of()
+				  .mapColor(MapColor.METAL)
+				  .instrument(NoteBlockInstrument.IRON_XYLOPHONE)
+				  .requiresCorrectToolForDrops()
+				  .strength(1.0F, 2.0F)
+				  .sound(SoundType.METAL)
+				  .noOcclusion());
+	}
 
-   public RenderShape getRenderShape(BlockState state) {
-      return RenderShape.ENTITYBLOCK_ANIMATED;
-   }
+	public RenderShape getRenderShape(BlockState state) {
+		return RenderShape.ENTITYBLOCK_ANIMATED;
+	}
 
-   protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-      builder.add(FACING);
-   }
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(FACING);
+	}
 
-   @Nullable
-   public BlockState getStateForPlacement(BlockPlaceContext context) {
-      return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getClockWise().getClockWise());
-   }
+	@Nullable
+	public BlockState getStateForPlacement(BlockPlaceContext context) {
+		return this.defaultBlockState().setValue(
+			FACING, context.getHorizontalDirection().getClockWise().getClockWise());
+	}
 
-   @Nullable
-   public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-      return (BlockEntityRegistry.PRINTER_BLOCK_ENTITY.get()).create(blockPos, blockState);
-   }
+	@Nullable
+	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+		return (BlockEntityRegistry.PRINTER_BLOCK_ENTITY.get()).create(blockPos, blockState);
+	}
 
-   public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
-      return true;
-   }
+	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+		return true;
+	}
 
-   public InteractionResult use(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand interationHand, BlockHitResult blockHitResult) {
-      if (level.isClientSide) {
-         return InteractionResult.SUCCESS;
-      } else {
-         BlockEntity blockEntity = level.getBlockEntity(blockPos);
-         if (blockEntity instanceof PrinterBlockEntity wbe) {
-             if (wbe.getState() == State.IDLE) {
-               player.openMenu(blockState.getMenuProvider(level, blockPos));
-               player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
-               return InteractionResult.CONSUME;
-            }
-         }
+	public InteractionResult
+	use(BlockState blockState,
+		Level level,
+		BlockPos blockPos,
+		Player player,
+		InteractionHand interationHand,
+		BlockHitResult blockHitResult) {
+		if (level.isClientSide) {
+			return InteractionResult.SUCCESS;
+		} else {
+			BlockEntity blockEntity = level.getBlockEntity(blockPos);
+			if (blockEntity instanceof PrinterBlockEntity wbe) {
+				if (wbe.getState() == State.IDLE) {
+					player.openMenu(blockState.getMenuProvider(level, blockPos));
+					player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
+					return InteractionResult.CONSUME;
+				}
+			}
 
-         return InteractionResult.FAIL;
-      }
-   }
+			return InteractionResult.FAIL;
+		}
+	}
 
-   @Nullable
-   public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> entityType) {
-      return createTickerHelper(entityType, BlockEntityRegistry.PRINTER_BLOCK_ENTITY.get(), level.isClientSide ? PrinterBlockEntity::clientTick : PrinterBlockEntity::serverTick);
-   }
+	@Nullable
+	public <T extends BlockEntity> BlockEntityTicker<T>
+	getTicker(Level level, BlockState blockState, BlockEntityType<T> entityType) {
+		return createTickerHelper(
+			entityType,
+			BlockEntityRegistry.PRINTER_BLOCK_ENTITY.get(),
+			level.isClientSide ? PrinterBlockEntity::clientTick : PrinterBlockEntity::serverTick);
+	}
 
-   static {
-      FACING = BlockStateProperties.FACING;
-   }
+	static {
+		FACING = BlockStateProperties.FACING;
+	}
 }

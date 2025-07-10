@@ -1,0 +1,30 @@
+name: Build project
+
+on:
+  push:
+    branches: [master, ci]
+  pull_request:
+    branches: [master, ci]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Gradle
+        run: ./gradlew build
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pointblank-jelly
+          path: build/libs/pointblank-*-all.jar

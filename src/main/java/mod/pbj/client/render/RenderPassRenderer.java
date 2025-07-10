@@ -10,29 +10,54 @@ import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.renderer.GeoRenderer;
 
 public interface RenderPassRenderer<T extends GeoAnimatable> extends RenderPassProvider {
-   GeoRenderer<T> getRenderer();
+	GeoRenderer<T> getRenderer();
 
-   boolean isEffectLayer();
+	boolean isEffectLayer();
 
-   RenderType getRenderType();
+	RenderType getRenderType();
 
-   boolean isSupportedItemDisplayContext(ItemDisplayContext var1);
+	boolean isSupportedItemDisplayContext(ItemDisplayContext var1);
 
-   default void renderPass(Runnable runnable) {
-      ItemDisplayContext itemDisplayContext = HierarchicalRenderContext.current().getItemDisplayContext();
-      if (this.isSupportedItemDisplayContext(itemDisplayContext)) {
-         RenderPass.push(this.getRenderPass());
+	default void renderPass(Runnable runnable) {
+		ItemDisplayContext itemDisplayContext = HierarchicalRenderContext.current().getItemDisplayContext();
+		if (this.isSupportedItemDisplayContext(itemDisplayContext)) {
+			RenderPass.push(this.getRenderPass());
 
-         try {
-            runnable.run();
-         } finally {
-            RenderPass.pop();
-         }
+			try {
+				runnable.run();
+			} finally {
+				RenderPass.pop();
+			}
+		}
+	}
 
-      }
-   }
-
-   default void render(BakedGeoModel attachmentModel, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, RenderType renderType, VertexConsumer buffer, float partialTick, int packedLight, int overlay, float red, float green, float blue, float alpha) {
-      this.getRenderer().reRender(attachmentModel, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, overlay, red, green, blue, alpha);
-   }
+	default void render(
+		BakedGeoModel attachmentModel,
+		PoseStack poseStack,
+		MultiBufferSource bufferSource,
+		T animatable,
+		RenderType renderType,
+		VertexConsumer buffer,
+		float partialTick,
+		int packedLight,
+		int overlay,
+		float red,
+		float green,
+		float blue,
+		float alpha) {
+		this.getRenderer().reRender(
+			attachmentModel,
+			poseStack,
+			bufferSource,
+			animatable,
+			renderType,
+			buffer,
+			partialTick,
+			packedLight,
+			overlay,
+			red,
+			green,
+			blue,
+			alpha);
+	}
 }

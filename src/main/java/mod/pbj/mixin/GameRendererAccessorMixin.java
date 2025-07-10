@@ -11,19 +11,13 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin({GameRenderer.class})
 public interface GameRendererAccessorMixin {
-   @Accessor("mainCamera")
-   Camera getMainCamera();
+	@Accessor("mainCamera") Camera getMainCamera();
 
-   @Accessor("lightTexture")
-   LightTexture getLightTexture();
+	@Accessor("lightTexture") LightTexture getLightTexture();
 
-   @Mutable
-   @Accessor("renderDistance")
-   void setRenderDistance(float var1);
+	@Mutable @Accessor("renderDistance") void setRenderDistance(float var1);
 
-   @Invoker("getFov")
-   double invokeGetFov(Camera var1, float var2, boolean var3);
+	@Invoker("getFov") double invokeGetFov(Camera var1, float var2, boolean var3);
 
-   @Invoker("renderItemInHand")
-   void invokeRenderItemInHand(PoseStack var1, Camera var2, float var3);
+	@Invoker("renderItemInHand") void invokeRenderItemInHand(PoseStack var1, Camera var2, float var3);
 }

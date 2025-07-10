@@ -8,7 +8,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin({Minecraft.class})
 public interface MinecraftAccessorMixin {
-   @Mutable
-   @Accessor("mainRenderTarget")
-   void setMainRenderTarget(RenderTarget var1);
+	@Mutable @Accessor("mainRenderTarget") void setMainRenderTarget(RenderTarget var1);
 }

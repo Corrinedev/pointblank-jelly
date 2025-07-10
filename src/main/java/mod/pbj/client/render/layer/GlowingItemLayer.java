@@ -17,53 +17,86 @@ import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.renderer.GeoRenderer;
 
 public class GlowingItemLayer<T extends GeoAnimatable> extends FeaturePassLayer<T> {
-   public static final String HRC_ATTRIBUTE_GLOW_ENABLED = "isGlowEnabled";
-   private RenderType renderType;
+	public static final String HRC_ATTRIBUTE_GLOW_ENABLED = "isGlowEnabled";
+	private RenderType renderType;
 
-   public GlowingItemLayer(GeoRenderer<T> renderer, int effectId, ResourceLocation texture) {
-      super(renderer, GlowFeature.class, RenderPass.GLOW, ALL_PARTS, true, effectId);
-      RenderTypeProvider renderTypeProvider = RenderTypeProvider.getInstance();
-      this.renderType = renderTypeProvider.getGlowRenderType(texture);
-   }
+	public GlowingItemLayer(GeoRenderer<T> renderer, int effectId, ResourceLocation texture) {
+		super(renderer, GlowFeature.class, RenderPass.GLOW, ALL_PARTS, true, effectId);
+		RenderTypeProvider renderTypeProvider = RenderTypeProvider.getInstance();
+		this.renderType = renderTypeProvider.getGlowRenderType(texture);
+	}
 
-   protected RenderType getRenderType(GunItem animatable) {
-      return this.renderType;
-   }
+	protected RenderType getRenderType(GunItem animatable) {
+		return this.renderType;
+	}
 
-   public void render(BakedGeoModel attachmentModel, PoseStack poseStack, MultiBufferSource bufferSource, T animatable, RenderType renderType, VertexConsumer buffer, float partialTick, int packedLight, int overlay, float red, float green, float blue, float alpha) {
-      RenderPass.push(this.getRenderPass());
+	public void render(
+		BakedGeoModel attachmentModel,
+		PoseStack poseStack,
+		MultiBufferSource bufferSource,
+		T animatable,
+		RenderType renderType,
+		VertexConsumer buffer,
+		float partialTick,
+		int packedLight,
+		int overlay,
+		float red,
+		float green,
+		float blue,
+		float alpha) {
+		RenderPass.push(this.getRenderPass());
 
-      try {
-         RenderPass.setEffectId(this.effectId);
-         RenderTypeProvider renderTypeProvider = RenderTypeProvider.getInstance();
-         float glowBrightness = renderTypeProvider.getGlowBrightness();
-         super.render(attachmentModel, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, overlay, glowBrightness, glowBrightness, glowBrightness, 1.0F);
-      } finally {
-         RenderPass.pop();
-      }
+		try {
+			RenderPass.setEffectId(this.effectId);
+			RenderTypeProvider renderTypeProvider = RenderTypeProvider.getInstance();
+			float glowBrightness = renderTypeProvider.getGlowBrightness();
+			super.render(
+				attachmentModel,
+				poseStack,
+				bufferSource,
+				animatable,
+				renderType,
+				buffer,
+				partialTick,
+				packedLight,
+				overlay,
+				glowBrightness,
+				glowBrightness,
+				glowBrightness,
+				1.0F);
+		} finally {
+			RenderPass.pop();
+		}
+	}
 
-   }
+	public RenderType getRenderType() {
+		return this.renderType;
+	}
 
-   public RenderType getRenderType() {
-      return this.renderType;
-   }
+	public boolean isSupportedItemDisplayContext(ItemDisplayContext context) {
+		return true;
+	}
 
-   public boolean isSupportedItemDisplayContext(ItemDisplayContext context) {
-      return true;
-   }
+	public boolean approveRendering(
+		RenderPass renderPass,
+		String partName,
+		ItemStack rootStack,
+		ItemStack currentStack,
+		String path,
+		ItemDisplayContext itemDisplayContext) {
+		return isGlowEnabled()
+			? true
+			: super.approveRendering(renderPass, partName, rootStack, currentStack, path, itemDisplayContext);
+	}
 
-   public boolean approveRendering(RenderPass renderPass, String partName, ItemStack rootStack, ItemStack currentStack, String path, ItemDisplayContext itemDisplayContext) {
-      return isGlowEnabled() ? true : super.approveRendering(renderPass, partName, rootStack, currentStack, path, itemDisplayContext);
-   }
+	public static boolean isGlowEnabled() {
+		HierarchicalRenderContext current = HierarchicalRenderContext.current();
+		Boolean isGlowEnabled = (Boolean)current.getAttribute("isGlowEnabled");
+		return isGlowEnabled != null && isGlowEnabled;
+	}
 
-   public static boolean isGlowEnabled() {
-      HierarchicalRenderContext current = HierarchicalRenderContext.current();
-      Boolean isGlowEnabled = (Boolean)current.getAttribute("isGlowEnabled");
-      return isGlowEnabled != null && isGlowEnabled;
-   }
-
-   public static void setGlowEnabled(boolean isGlowEnabled) {
-      HierarchicalRenderContext current = HierarchicalRenderContext.current();
-      current.setAttribute("isGlowEnabled", isGlowEnabled);
-   }
+	public static void setGlowEnabled(boolean isGlowEnabled) {
+		HierarchicalRenderContext current = HierarchicalRenderContext.current();
+		current.setAttribute("isGlowEnabled", isGlowEnabled);
+	}
 }

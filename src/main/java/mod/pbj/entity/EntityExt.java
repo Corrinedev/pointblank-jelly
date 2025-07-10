@@ -1,7 +1,7 @@
 package mod.pbj.entity;
 
 public interface EntityExt {
-   long getLastHitSoundTimestamp();
+	long getLastHitSoundTimestamp();
 
-   void setLastHitSoundTimestamp(long var1);
+	void setLastHitSoundTimestamp(long var1);
 }

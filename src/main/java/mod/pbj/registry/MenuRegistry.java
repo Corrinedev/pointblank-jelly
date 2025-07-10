@@ -11,17 +11,18 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class MenuRegistry {
-   public static final DeferredRegister<MenuType<?>> MENU_TYPES;
-   public static final RegistryObject<MenuType<CraftingContainerMenu>> CRAFTING;
-   public static final RegistryObject<MenuType<AttachmentContainerMenu>> ATTACHMENTS;
+	public static final DeferredRegister<MenuType<?>> MENU_TYPES;
+	public static final RegistryObject<MenuType<CraftingContainerMenu>> CRAFTING;
+	public static final RegistryObject<MenuType<AttachmentContainerMenu>> ATTACHMENTS;
 
-   private static <T extends AbstractContainerMenu> RegistryObject<MenuType<T>> register(String id, MenuSupplier<T> factory) {
-      return MENU_TYPES.register(id, () -> new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS));
-   }
+	private static <T extends AbstractContainerMenu>
+		RegistryObject<MenuType<T>> register(String id, MenuSupplier<T> factory) {
+		return MENU_TYPES.register(id, () -> new MenuType<>(factory, FeatureFlags.DEFAULT_FLAGS));
+	}
 
-   static {
-      MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, "pointblank");
-      CRAFTING = register("crafting", CraftingContainerMenu::new);
-      ATTACHMENTS = register("attachments", AttachmentContainerMenu::new);
-   }
+	static {
+		MENU_TYPES = DeferredRegister.create(ForgeRegistries.MENU_TYPES, "pointblank");
+		CRAFTING = register("crafting", CraftingContainerMenu::new);
+		ATTACHMENTS = register("attachments", AttachmentContainerMenu::new);
+	}
 }

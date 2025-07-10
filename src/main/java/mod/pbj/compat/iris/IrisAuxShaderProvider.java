@@ -4,11 +4,11 @@ import net.irisshaders.iris.targets.RenderTargets;
 import net.minecraft.client.renderer.ShaderInstance;
 
 public interface IrisAuxShaderProvider {
-   ShaderInstance getPointblankAuxShader();
+	ShaderInstance getPointblankAuxShader();
 
-   ShaderInstance getPointblankAuxPlainShader();
+	ShaderInstance getPointblankAuxPlainShader();
 
-   ShaderInstance getPointblankMaskShader();
+	ShaderInstance getPointblankMaskShader();
 
-   RenderTargets getPointblankRenderTargets();
+	RenderTargets getPointblankRenderTargets();
 }

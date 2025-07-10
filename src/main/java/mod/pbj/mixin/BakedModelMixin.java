@@ -7,9 +7,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin({Baked.class})
 public interface BakedModelMixin {
-   @Accessor(
-      value = "baseModel",
-      remap = false
-   )
-   BakedModel getBaseModel();
+	@Accessor(value = "baseModel", remap = false) BakedModel getBaseModel();
 }

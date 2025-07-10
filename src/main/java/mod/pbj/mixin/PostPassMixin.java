@@ -9,25 +9,21 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(value = {PostPass.class}, remap = false)
 public class PostPassMixin {
-   private static String EFFECT_NAME_PREFIX = "pointblank:";
+	private static String EFFECT_NAME_PREFIX = "pointblank:";
 
-   public PostPassMixin() {
-   }
+	public PostPassMixin() {}
 
-   @Redirect(
-           method = {"process"},
-           at = @At(
-                   value = "INVOKE",
-                   target = "Lnet/minecraft/client/renderer/EffectInstance;apply()V"
-           )
-   )
-   private void onApplyEffect(EffectInstance effect) {
-      String effectName = effect.getName();
-      if (effectName != null && effectName.startsWith(EFFECT_NAME_PREFIX)) {
-         float progress = (float)ClientEventHandler.getPostPassEffectController().getProgress();
-         effect.safeGetUniform("Progress").set(progress);
-      }
+	@Redirect(
+		method = {"process"},
+		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EffectInstance;apply()V"))
+	private void
+	onApplyEffect(EffectInstance effect) {
+		String effectName = effect.getName();
+		if (effectName != null && effectName.startsWith(EFFECT_NAME_PREFIX)) {
+			float progress = (float)ClientEventHandler.getPostPassEffectController().getProgress();
+			effect.safeGetUniform("Progress").set(progress);
+		}
 
-      effect.apply();
-   }
+		effect.apply();
+	}
 }

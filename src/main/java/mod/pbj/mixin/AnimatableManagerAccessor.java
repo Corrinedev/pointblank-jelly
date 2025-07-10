@@ -7,7 +7,5 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 
 @Mixin({AnimatableManager.class})
 public interface AnimatableManagerAccessor {
-   @Mutable
-   @Accessor("isFirstTick")
-   void setIsFirstTick(boolean var1);
+	@Mutable @Accessor("isFirstTick") void setIsFirstTick(boolean var1);
 }

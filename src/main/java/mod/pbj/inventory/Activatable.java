@@ -1,7 +1,7 @@
 package mod.pbj.inventory;
 
 public interface Activatable {
-   boolean isActive();
+	boolean isActive();
 
-   void setActive(boolean var1);
+	void setActive(boolean var1);
 }

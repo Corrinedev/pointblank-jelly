@@ -20,44 +20,66 @@ import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 import software.bernie.geckolib.util.RenderUtils;
 
 public class ProjectileItemRenderer extends GeoItemRenderer<AmmoItem> {
-   public static final String BONE_NOZZLE = "nozzle";
+	public static final String BONE_NOZZLE = "nozzle";
 
-   public ProjectileItemRenderer(String resourceName) {
-      super(new DefaultedItemGeoModel<>(new ResourceLocation("pointblank", resourceName)));
-      this.addRenderLayer(new EffectsLayer(this));
-   }
+	public ProjectileItemRenderer(String resourceName) {
+		super(new DefaultedItemGeoModel<>(new ResourceLocation("pointblank", resourceName)));
+		this.addRenderLayer(new EffectsLayer(this));
+	}
 
-   public void renderCubesOfBone(PoseStack poseStack, GeoBone bone, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-      if (!"nozzle".equals(bone.getName())) {
-         super.renderCubesOfBone(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-      }
+	public void renderCubesOfBone(
+		PoseStack poseStack,
+		GeoBone bone,
+		VertexConsumer buffer,
+		int packedLight,
+		int packedOverlay,
+		float red,
+		float green,
+		float blue,
+		float alpha) {
+		if (!"nozzle".equals(bone.getName())) {
+			super.renderCubesOfBone(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+		}
+	}
 
-   }
+	public static class EffectsLayer extends GeoRenderLayer<AmmoItem> {
+		public EffectsLayer(GeoRenderer<AmmoItem> entityRendererIn) {
+			super(entityRendererIn);
+		}
 
-   public static class EffectsLayer extends GeoRenderLayer<AmmoItem> {
-      public EffectsLayer(GeoRenderer<AmmoItem> entityRendererIn) {
-         super(entityRendererIn);
-      }
+		public void render(
+			PoseStack poseStack,
+			AmmoItem animatable,
+			BakedGeoModel bakedModel,
+			RenderType renderType,
+			MultiBufferSource bufferSource,
+			VertexConsumer buffer,
+			float partialTick,
+			int packedLight,
+			int packedOverlay) {
+			ProjectileLike projectile = ProjectileItemEntityRenderer.getCurrentProjectile();
+			PoseStack.Pose pose = ProjectileItemEntityRenderer.getCurrentPose();
+			if (projectile != null && pose != null) {
+				GeoBone nozzleBone = bakedModel.getBone("nozzle").orElse(null);
+				if (nozzleBone != null) {
+					poseStack.pushPose();
+					RenderUtils.translateToPivotPoint(poseStack, nozzleBone);
+					poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
 
-      public void render(PoseStack poseStack, AmmoItem animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-         ProjectileLike projectile = ProjectileItemEntityRenderer.getCurrentProjectile();
-         PoseStack.Pose pose = ProjectileItemEntityRenderer.getCurrentPose();
-         if (projectile != null && pose != null) {
-            GeoBone nozzleBone = bakedModel.getBone("nozzle").orElse(null);
-            if (nozzleBone != null) {
-               poseStack.pushPose();
-               RenderUtils.translateToPivotPoint(poseStack, nozzleBone);
-               poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+					for (Effect attachedEffect : projectile.getActiveAttachedEffects()) {
+						EffectRenderContext effectRenderContext =
+							(new EffectRenderContext())
+								.withPoseStack(poseStack)
+								.withProgress(projectile.getProgress(partialTick))
+								.withLightColor(packedLight)
+								.withSpriteUVProvider(StaticSpriteUVProvider.INSTANCE)
+								.withBufferSource(bufferSource);
+						attachedEffect.render(effectRenderContext);
+					}
 
-               for(Effect attachedEffect : projectile.getActiveAttachedEffects()) {
-                  EffectRenderContext effectRenderContext = (new EffectRenderContext()).withPoseStack(poseStack).withProgress(projectile.getProgress(partialTick)).withLightColor(packedLight).withSpriteUVProvider(StaticSpriteUVProvider.INSTANCE).withBufferSource(bufferSource);
-                  attachedEffect.render(effectRenderContext);
-               }
-
-               poseStack.popPose();
-            }
-         }
-
-      }
-   }
+					poseStack.popPose();
+				}
+			}
+		}
+	}
 }

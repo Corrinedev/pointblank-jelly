@@ -1,6 +1,11 @@
 package mod.pbj.item;
 
 import com.google.gson.JsonObject;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import javax.annotation.Nullable;
 import mod.pbj.attachment.Attachment;
 import mod.pbj.attachment.AttachmentCategory;
 import mod.pbj.attachment.AttachmentHost;
@@ -13,8 +18,8 @@ import mod.pbj.feature.FeatureProvider;
 import mod.pbj.feature.Features;
 import mod.pbj.registry.ExtensionRegistry;
 import mod.pbj.registry.ItemRegistry;
-import mod.pbj.util.JsonUtil;
 import mod.pbj.script.Script;
+import mod.pbj.util.JsonUtil;
 import mod.pbj.util.TimeUnit;
 import mod.pbj.util.Tradeable;
 import net.minecraft.ChatFormatting;
@@ -35,345 +40,339 @@ import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import javax.annotation.Nullable;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+public final class AttachmentItem
+	extends Item implements ScriptHolder, GeoItem, Attachment, AttachmentHost, FeatureProvider, Craftable, Tradeable {
+	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	private String name;
+	private AttachmentCategory category;
+	private List<String> compatibleAttachmentGroups;
+	private List<Supplier<Attachment>> compatibleAttachmentSuppliers;
+	private List<Attachment> compatibleAttachments;
+	private Set<String> groups;
+	private Map<Class<? extends Feature>, Feature> features;
+	private long craftingDuration;
+	private float tradePrice;
+	private int tradeBundleQuantity;
+	private int tradeLevel;
+	private List<Component> descriptionLines;
+	public List<Supplier<Attachment>> defaultAttachmentSuppliers;
+	private @org.jetbrains.annotations.Nullable Script script;
 
-public final class AttachmentItem extends Item implements ScriptHolder, GeoItem, Attachment, AttachmentHost, FeatureProvider, Craftable, Tradeable {
-   private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-   private String name;
-   private AttachmentCategory category;
-   private List<String> compatibleAttachmentGroups;
-   private List<Supplier<Attachment>> compatibleAttachmentSuppliers;
-   private List<Attachment> compatibleAttachments;
-   private Set<String> groups;
-   private Map<Class<? extends Feature>, Feature> features;
-   private long craftingDuration;
-   private float tradePrice;
-   private int tradeBundleQuantity;
-   private int tradeLevel;
-   private List<Component> descriptionLines;
-   public List<Supplier<Attachment>> defaultAttachmentSuppliers;
-   private @org.jetbrains.annotations.Nullable Script script;
+	public AttachmentItem() {
+		super(new Item.Properties());
+		SingletonGeoAnimatable.registerSyncedAnimatable(this);
+	}
 
-   public AttachmentItem() {
-      super(new Item.Properties());
-      SingletonGeoAnimatable.registerSyncedAnimatable(this);
-   }
+	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+		consumer.accept(new IClientItemExtensions() {
+			private AttachmentModelRenderer renderer;
 
-   public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-      consumer.accept(new IClientItemExtensions() {
-         private AttachmentModelRenderer renderer;
+			public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+				if (this.renderer == null) {
+					this.renderer = new AttachmentModelRenderer(AttachmentItem.this.name);
+				}
 
-         public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-            if (this.renderer == null) {
-               this.renderer = new AttachmentModelRenderer(AttachmentItem.this.name);
-            }
+				return this.renderer;
+			}
+		});
+	}
 
-            return this.renderer;
-         }
-      });
-   }
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+		controllers.add(new AnimationController<>(this, "scriptAnimator", state -> PlayState.CONTINUE));
+	}
 
-   public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-      controllers.add(new AnimationController<>(this, "scriptAnimator", state -> PlayState.CONTINUE));
-   }
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		return this.cache;
+	}
 
-   public AnimatableInstanceCache getAnimatableInstanceCache() {
-      return this.cache;
-   }
+	public String getName() {
+		return this.name;
+	}
 
-   public String getName() {
-      return this.name;
-   }
+	public Collection<Feature> getFeatures() {
+		return Collections.unmodifiableCollection(this.features.values());
+	}
 
-   public Collection<Feature> getFeatures() {
-      return Collections.unmodifiableCollection(this.features.values());
-   }
+	public List<Component> getDescriptionTooltipLines() {
+		return this.descriptionLines;
+	}
 
-   public List<Component> getDescriptionTooltipLines() {
-      return this.descriptionLines;
-   }
+	public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {}
 
-   public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> tooltip, TooltipFlag flag) {
-   }
+	public AttachmentCategory getCategory() {
+		return this.category;
+	}
 
-   public AttachmentCategory getCategory() {
-      return this.category;
-   }
+	public Set<String> getGroups() {
+		return this.groups;
+	}
 
-   public Set<String> getGroups() {
-      return this.groups;
-   }
+	public int getMaxStackSize(ItemStack stack) {
+		return 1;
+	}
 
-   public int getMaxStackSize(ItemStack stack) {
-      return 1;
-   }
+	public Collection<Attachment> getCompatibleAttachments() {
+		if (this.compatibleAttachments == null) {
+			this.compatibleAttachments = new ArrayList<>();
 
-   public Collection<Attachment> getCompatibleAttachments() {
-      if (this.compatibleAttachments == null) {
-         this.compatibleAttachments = new ArrayList<>();
+			for (Supplier<Attachment> cas : this.compatibleAttachmentSuppliers) {
+				this.compatibleAttachments.add(cas.get());
+			}
 
-         for(Supplier<Attachment> cas : this.compatibleAttachmentSuppliers) {
-            this.compatibleAttachments.add(cas.get());
-         }
+			for (String group : this.compatibleAttachmentGroups) {
+				for (Supplier<? extends Item> ga : ItemRegistry.ITEMS.getAttachmentsForGroup(group)) {
+					Item item = ga.get();
+					if (item instanceof Attachment attachment) {
+						this.compatibleAttachments.add(attachment);
+					}
+				}
+			}
+		}
 
-         for(String group : this.compatibleAttachmentGroups) {
-            for(Supplier<? extends Item> ga : ItemRegistry.ITEMS.getAttachmentsForGroup(group)) {
-               Item item = ga.get();
-               if (item instanceof Attachment attachment) {
-                   this.compatibleAttachments.add(attachment);
-               }
-            }
-         }
-      }
+		return this.compatibleAttachments;
+	}
 
-      return this.compatibleAttachments;
-   }
+	public Component getName(ItemStack itemStack) {
+		return Component.translatable(this.getDescriptionId(itemStack));
+	}
 
-   public Component getName(ItemStack itemStack) {
-      return Component.translatable(this.getDescriptionId(itemStack));
-   }
+	public <T extends Feature> T getFeature(Class<T> featureClass) {
+		return featureClass.cast(this.features.get(featureClass));
+	}
 
-   public <T extends Feature> T getFeature(Class<T> featureClass) {
-      return featureClass.cast(this.features.get(featureClass));
-   }
+	public long getCraftingDuration() {
+		return this.craftingDuration;
+	}
 
-   public long getCraftingDuration() {
-      return this.craftingDuration;
-   }
+	public float getPrice() {
+		return this.tradePrice;
+	}
 
-   public float getPrice() {
-      return this.tradePrice;
-   }
+	public int getTradeLevel() {
+		return this.tradeLevel;
+	}
 
-   public int getTradeLevel() {
-      return this.tradeLevel;
-   }
+	public int getBundleQuantity() {
+		return this.tradeBundleQuantity;
+	}
 
-   public int getBundleQuantity() {
-      return this.tradeBundleQuantity;
-   }
+	public List<Attachment> getDefaultAttachments() {
+		return this.defaultAttachmentSuppliers.stream().map(Supplier::get).toList();
+	}
 
-   public List<Attachment> getDefaultAttachments() {
-      return this.defaultAttachmentSuppliers.stream().map(Supplier::get).toList();
-   }
+	public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int itemSlot, boolean isSelected) {
+		if (!level.isClientSide) {
+			this.ensureItemStack(itemStack);
+		}
+	}
 
-   public void inventoryTick(ItemStack itemStack, Level level, Entity entity, int itemSlot, boolean isSelected) {
-      if (!level.isClientSide) {
-         this.ensureItemStack(itemStack);
-      }
+	public void ensureItemStack(ItemStack itemStack) {
+		CompoundTag stateTag = itemStack.getTag();
+		if (stateTag == null) {
+			stateTag = new CompoundTag();
+			itemStack.setTag(stateTag);
+			Item defaultAttachments = itemStack.getItem();
+			if (defaultAttachments instanceof AttachmentHost attachmentHost) {
+				for (Attachment attachment : attachmentHost.getDefaultAttachments()) {
+					Attachments.addAttachment(itemStack, new ItemStack(attachment), true);
+				}
+			}
+		}
+	}
 
-   }
+	@Override
+	public @org.jetbrains.annotations.Nullable Script getScript() {
+		return script;
+	}
 
-   public void ensureItemStack(ItemStack itemStack) {
-      CompoundTag stateTag = itemStack.getTag();
-      if (stateTag == null) {
-         stateTag = new CompoundTag();
-         itemStack.setTag(stateTag);
-         Item defaultAttachments = itemStack.getItem();
-         if (defaultAttachments instanceof AttachmentHost attachmentHost) {
+	public static class Builder extends ItemBuilder<Builder> {
+		private static final int DEFAULT_CRAFTING_DURATION = 750;
+		private static final float DEFAULT_PRICE = Float.NaN;
+		private static final int DEFAULT_TRADE_LEVEL = 0;
+		private static final int DEFAULT_TRADE_BUNDLE_QUANTITY = 1;
+		private String name;
+		private AttachmentCategory category;
+		private final List<Supplier<Attachment>> compatibleAttachmentSuppliers = new ArrayList<>();
+		private final List<String> compatibleAttachmentGroups = new ArrayList<>();
+		private final Set<String> groups = new HashSet<>();
+		private final List<FeatureBuilder<?, ?>> featureBuilders = new ArrayList<>();
+		private long craftingDuration = 750L;
+		private float tradePrice = Float.NaN;
+		private int tradeBundleQuantity = 1;
+		private int tradeLevel = 0;
+		private final List<Component> descriptionLines = new ArrayList<>();
+		private final List<Supplier<Attachment>> defaultAttachments = new ArrayList<>();
+		private @org.jetbrains.annotations.Nullable Script script;
 
-             for(Attachment attachment : attachmentHost.getDefaultAttachments()) {
-               Attachments.addAttachment(itemStack, new ItemStack(attachment), true);
-            }
-         }
-      }
+		public Builder(ExtensionRegistry.Extension extension) {
+			this.extension = extension;
+		}
 
-   }
+		public Builder() {
+			this.extension = new ExtensionRegistry.Extension("pointblank", Path.of("pointblank"), "pointblank");
+		}
 
-   @Override
-   public @org.jetbrains.annotations.Nullable Script getScript() {
-      return script;
-   }
+		public Builder withName(String name) {
+			this.name = name;
+			return this;
+		}
 
-   public static class Builder extends ItemBuilder<Builder> {
-      private static final int DEFAULT_CRAFTING_DURATION = 750;
-      private static final float DEFAULT_PRICE = Float.NaN;
-      private static final int DEFAULT_TRADE_LEVEL = 0;
-      private static final int DEFAULT_TRADE_BUNDLE_QUANTITY = 1;
-      private String name;
-      private AttachmentCategory category;
-      private final List<Supplier<Attachment>> compatibleAttachmentSuppliers = new ArrayList<>();
-      private final List<String> compatibleAttachmentGroups = new ArrayList<>();
-      private final Set<String> groups = new HashSet<>();
-      private final List<FeatureBuilder<?, ?>> featureBuilders = new ArrayList<>();
-      private long craftingDuration = 750L;
-      private float tradePrice = Float.NaN;
-      private int tradeBundleQuantity = 1;
-      private int tradeLevel = 0;
-      private final List<Component> descriptionLines = new ArrayList<>();
-      private final List<Supplier<Attachment>> defaultAttachments = new ArrayList<>();
-      private @org.jetbrains.annotations.Nullable Script script;
+		public Builder withScript(Script script) {
+			this.script = script;
+			return this;
+		}
 
-      public Builder(ExtensionRegistry.Extension extension) {
-         this.extension = extension;
-      }
+		public Builder withCategory(String categoryName) {
+			this.category = AttachmentCategory.fromString(categoryName);
+			return this;
+		}
 
-      public Builder() {
-         this.extension = new ExtensionRegistry.Extension("pointblank", Path.of("pointblank"), "pointblank");
-      }
+		public Builder withCategory(AttachmentCategory category) {
+			this.category = category;
+			return this;
+		}
 
-      public Builder withName(String name) {
-         this.name = name;
-         return this;
-      }
+		public Builder withDescription(Component description) {
+			this.descriptionLines.add(description);
+			return this;
+		}
 
-      public Builder withScript(Script script) {
-         this.script = script;
-         return this;
-      }
+		public Builder withDescription(String description) {
+			this.descriptionLines.add(
+				Component.translatable(description).withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC));
+			return this;
+		}
 
-      public Builder withCategory(String categoryName) {
-         this.category = AttachmentCategory.fromString(categoryName);
-         return this;
-      }
+		public Builder withFeature(FeatureBuilder<?, ?> featureBuilder) {
+			this.featureBuilders.add(featureBuilder);
+			return this;
+		}
 
-      public Builder withCategory(AttachmentCategory category) {
-         this.category = category;
-         return this;
-      }
+		@SafeVarargs
+		public final Builder withCompatibleAttachment(Supplier<? extends Attachment>... attachmentSuppliers) {
+			for (Supplier<? extends Attachment> s : attachmentSuppliers) {
+				Objects.requireNonNull(s);
+				this.compatibleAttachmentSuppliers.add(s::get);
+			}
 
-      public Builder withDescription(Component description) {
-         this.descriptionLines.add(description);
-         return this;
-      }
+			return this;
+		}
 
-      public Builder withDescription(String description) {
-         this.descriptionLines.add(Component.translatable(description).withStyle(ChatFormatting.RED).withStyle(ChatFormatting.ITALIC));
-         return this;
-      }
+		public Builder withCompatibleAttachmentGroup(String... groups) {
+			this.compatibleAttachmentGroups.addAll(Set.of(groups));
+			return this;
+		}
 
-      public Builder withFeature(FeatureBuilder<?, ?> featureBuilder) {
-         this.featureBuilders.add(featureBuilder);
-         return this;
-      }
+		public Builder withGroup(String... groups) {
+			this.groups.addAll(Set.of(groups));
+			return this;
+		}
 
-      @SafeVarargs
-      public final Builder withCompatibleAttachment(Supplier<? extends Attachment>... attachmentSuppliers) {
-         for(Supplier<? extends Attachment> s : attachmentSuppliers) {
-             Objects.requireNonNull(s);
-            this.compatibleAttachmentSuppliers.add(s::get);
-         }
+		public Builder withCraftingDuration(int duration, TimeUnit timeUnit) {
+			this.craftingDuration = timeUnit.toMillis(duration);
+			return this;
+		}
 
-         return this;
-      }
+		public Builder withTradePrice(double price, int tradeLevel) {
+			this.tradePrice = (float)price;
+			this.tradeLevel = tradeLevel;
+			this.tradeBundleQuantity = 1;
+			return this;
+		}
 
-      public Builder withCompatibleAttachmentGroup(String... groups) {
-         this.compatibleAttachmentGroups.addAll(Set.of(groups));
-         return this;
-      }
+		public Set<String> getGroups() {
+			return Collections.unmodifiableSet(this.groups);
+		}
 
-      public Builder withGroup(String... groups) {
-         this.groups.addAll(Set.of(groups));
-         return this;
-      }
+		@SafeVarargs
+		public final Builder withDefaultAttachment(Supplier<? extends Attachment>... attachmentSuppliers) {
+			for (Supplier<? extends Attachment> s : attachmentSuppliers) {
+				Objects.requireNonNull(s);
+				this.defaultAttachments.add(s::get);
+			}
 
-      public Builder withCraftingDuration(int duration, TimeUnit timeUnit) {
-         this.craftingDuration = timeUnit.toMillis(duration);
-         return this;
-      }
+			return this;
+		}
 
-      public Builder withTradePrice(double price, int tradeLevel) {
-         this.tradePrice = (float)price;
-         this.tradeLevel = tradeLevel;
-         this.tradeBundleQuantity = 1;
-         return this;
-      }
+		public Builder withJsonObject(JsonObject obj) {
+			this.withName(JsonUtil.getJsonString(obj, "name"));
+			String description = JsonUtil.getJsonString(obj, "description", null);
+			if (description != null) {
+				this.withDescription(description);
+			}
 
-      public Set<String> getGroups() {
-         return Collections.unmodifiableSet(this.groups);
-      }
+			this.withCategory(JsonUtil.getJsonString(obj, "category"));
+			this.withTradePrice(
+				JsonUtil.getJsonFloat(obj, "tradePrice", Float.NaN), JsonUtil.getJsonInt(obj, "tradeLevel", 0));
+			this.withCraftingDuration(JsonUtil.getJsonInt(obj, "craftingDuration", 750), TimeUnit.MILLISECOND);
+			this.withScript(JsonUtil.getJsonScript(obj));
+			List<String> groups = JsonUtil.getStrings(obj, "groups");
+			this.groups.addAll(groups);
 
-      @SafeVarargs
-      public final Builder withDefaultAttachment(Supplier<? extends Attachment>... attachmentSuppliers) {
-         for(Supplier<? extends Attachment> s : attachmentSuppliers) {
-             Objects.requireNonNull(s);
-            this.defaultAttachments.add(s::get);
-         }
+			for (JsonObject featureObj : JsonUtil.getJsonObjects(obj, "features")) {
+				FeatureBuilder<?, ?> featureBuilder = Features.fromJson(featureObj);
+				this.withFeature(featureBuilder);
+			}
 
-         return this;
-      }
+			for (String compatibleAttachmentName : JsonUtil.getStrings(obj, "compatibleAttachments")) {
+				Supplier<Item> ri = ItemRegistry.ITEMS.getDeferredRegisteredObject(compatibleAttachmentName);
+				if (ri != null) {
+					this.withCompatibleAttachment(() -> (Attachment)ri.get());
+				}
+			}
 
-      public Builder withJsonObject(JsonObject obj) {
-         this.withName(JsonUtil.getJsonString(obj, "name"));
-         String description = JsonUtil.getJsonString(obj, "description", null);
-         if (description != null) {
-            this.withDescription(description);
-         }
+			List<String> compatibleAttachmentGroups = JsonUtil.getStrings(obj, "compatibleAttachmentGroups");
+			this.compatibleAttachmentGroups.addAll(compatibleAttachmentGroups);
 
-         this.withCategory(JsonUtil.getJsonString(obj, "category"));
-         this.withTradePrice(JsonUtil.getJsonFloat(obj, "tradePrice", Float.NaN), JsonUtil.getJsonInt(obj, "tradeLevel", 0));
-         this.withCraftingDuration(JsonUtil.getJsonInt(obj, "craftingDuration", 750), TimeUnit.MILLISECOND);
-         this.withScript(JsonUtil.getJsonScript(obj));
-         List<String> groups = JsonUtil.getStrings(obj, "groups");
-         this.groups.addAll(groups);
+			for (String defaultAttachmentName : JsonUtil.getStrings(obj, "defaultAttachments")) {
+				Supplier<Item> ri = ItemRegistry.ITEMS.getDeferredRegisteredObject(defaultAttachmentName);
+				if (ri != null) {
+					this.withDefaultAttachment(() -> (Attachment)ri.get());
+				}
+			}
 
-         for(JsonObject featureObj : JsonUtil.getJsonObjects(obj, "features")) {
-            FeatureBuilder<?, ?> featureBuilder = Features.fromJson(featureObj);
-            this.withFeature(featureBuilder);
-         }
+			return this;
+		}
 
-         for(String compatibleAttachmentName : JsonUtil.getStrings(obj, "compatibleAttachments")) {
-            Supplier<Item> ri = ItemRegistry.ITEMS.getDeferredRegisteredObject(compatibleAttachmentName);
-            if (ri != null) {
-               this.withCompatibleAttachment(() -> (Attachment)ri.get());
-            }
-         }
+		public AttachmentItem build() {
+			if (this.name == null) {
+				throw new IllegalStateException("Attachment name not set");
+			} else if (this.category == null) {
+				throw new IllegalStateException("Attachment category not set");
+			} else {
+				AttachmentItem attachment = new AttachmentItem();
+				attachment.name = this.name;
+				attachment.descriptionLines = Collections.unmodifiableList(this.descriptionLines);
+				attachment.category = this.category;
+				attachment.compatibleAttachmentSuppliers =
+					Collections.unmodifiableList(this.compatibleAttachmentSuppliers);
+				attachment.compatibleAttachmentGroups = Collections.unmodifiableList(this.compatibleAttachmentGroups);
+				attachment.groups = Collections.unmodifiableSet(this.groups);
+				attachment.script = this.script;
+				Map<Class<? extends Feature>, Feature> features = new HashMap<>();
 
-         List<String> compatibleAttachmentGroups = JsonUtil.getStrings(obj, "compatibleAttachmentGroups");
-         this.compatibleAttachmentGroups.addAll(compatibleAttachmentGroups);
+				for (FeatureBuilder<?, ?> featureBuilder : this.category.getDefaultFeatures()) {
+					Feature feature = featureBuilder.build(attachment);
+					features.put(feature.getClass(), feature);
+				}
 
-         for(String defaultAttachmentName : JsonUtil.getStrings(obj, "defaultAttachments")) {
-            Supplier<Item> ri = ItemRegistry.ITEMS.getDeferredRegisteredObject(defaultAttachmentName);
-            if (ri != null) {
-               this.withDefaultAttachment(() -> (Attachment)ri.get());
-            }
-         }
+				for (FeatureBuilder<?, ?> featureBuilder : this.featureBuilders) {
+					Feature feature = featureBuilder.build(attachment);
+					features.put(feature.getClass(), feature);
+				}
 
-         return this;
-      }
+				attachment.features = Collections.unmodifiableMap(features);
+				attachment.craftingDuration = this.craftingDuration;
+				attachment.tradePrice = this.tradePrice;
+				attachment.tradeBundleQuantity = this.tradeBundleQuantity;
+				attachment.tradeLevel = this.tradeLevel;
+				attachment.defaultAttachmentSuppliers = Collections.unmodifiableList(this.defaultAttachments);
+				return attachment;
+			}
+		}
 
-      public AttachmentItem build() {
-         if (this.name == null) {
-            throw new IllegalStateException("Attachment name not set");
-         } else if (this.category == null) {
-            throw new IllegalStateException("Attachment category not set");
-         } else {
-            AttachmentItem attachment = new AttachmentItem();
-            attachment.name = this.name;
-            attachment.descriptionLines = Collections.unmodifiableList(this.descriptionLines);
-            attachment.category = this.category;
-            attachment.compatibleAttachmentSuppliers = Collections.unmodifiableList(this.compatibleAttachmentSuppliers);
-            attachment.compatibleAttachmentGroups = Collections.unmodifiableList(this.compatibleAttachmentGroups);
-            attachment.groups = Collections.unmodifiableSet(this.groups);
-            attachment.script = this.script;
-            Map<Class<? extends Feature>, Feature> features = new HashMap<>();
-
-            for(FeatureBuilder<?, ?> featureBuilder : this.category.getDefaultFeatures()) {
-               Feature feature = featureBuilder.build(attachment);
-               features.put(feature.getClass(), feature);
-            }
-
-            for(FeatureBuilder<?, ?> featureBuilder : this.featureBuilders) {
-               Feature feature = featureBuilder.build(attachment);
-               features.put(feature.getClass(), feature);
-            }
-
-            attachment.features = Collections.unmodifiableMap(features);
-            attachment.craftingDuration = this.craftingDuration;
-            attachment.tradePrice = this.tradePrice;
-            attachment.tradeBundleQuantity = this.tradeBundleQuantity;
-            attachment.tradeLevel = this.tradeLevel;
-            attachment.defaultAttachmentSuppliers = Collections.unmodifiableList(this.defaultAttachments);
-            return attachment;
-         }
-      }
-
-      public String getName() {
-         return this.name;
-      }
-   }
+		public String getName() {
+			return this.name;
+		}
+	}
 }

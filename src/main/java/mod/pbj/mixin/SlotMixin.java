@@ -13,23 +13,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = {Slot.class})
 public class SlotMixin {
-   @Shadow
-   @Final
-   private int slot;
+	@Shadow @Final private int slot;
 
-   public SlotMixin() {
-   }
+	public SlotMixin() {}
 
-   @Inject(
-           method = {"mayPlace"},
-           at = {@At("HEAD")},
-           cancellable = true
-   )
-   private void onMayPlace(ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
-      if (this.slot == 40 && (itemStack.getItem() instanceof GunItem || itemStack.getItem() instanceof ThrowableItem)) {
-         cir.setReturnValue(false);
-         cir.cancel();
-      }
-
-   }
+	@Inject(method = {"mayPlace"}, at = { @At("HEAD") }, cancellable = true)
+	private void onMayPlace(ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
+		if (this.slot == 40 &&
+			(itemStack.getItem() instanceof GunItem || itemStack.getItem() instanceof ThrowableItem)) {
+			cir.setReturnValue(false);
+			cir.cancel();
+		}
+	}
 }

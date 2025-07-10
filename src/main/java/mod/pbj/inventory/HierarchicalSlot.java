@@ -1,9 +1,9 @@
 package mod.pbj.inventory;
 
 public interface HierarchicalSlot {
-   String getPath();
+	String getPath();
 
-   HierarchicalSlot getParentSlot();
+	HierarchicalSlot getParentSlot();
 
-   void setParentSlot(HierarchicalSlot var1);
+	void setParentSlot(HierarchicalSlot var1);
 }

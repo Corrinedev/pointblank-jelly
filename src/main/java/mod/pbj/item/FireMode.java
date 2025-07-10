@@ -1,8 +1,3 @@
 package mod.pbj.item;
 
-public enum FireMode {
-   SINGLE,
-   AUTOMATIC,
-   BURST,
-   MELEE
-}
+public enum FireMode { SINGLE, AUTOMATIC, BURST, MELEE }

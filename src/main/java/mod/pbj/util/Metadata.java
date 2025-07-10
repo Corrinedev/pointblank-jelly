@@ -1,8 +1,7 @@
 package mod.pbj.util;
 
 public interface Metadata {
+	void clientOnly();
 
-    void clientOnly();
-
-    boolean getClientStatus();
+	boolean getClientStatus();
 }

@@ -7,30 +7,29 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.eventbus.api.Event;
 
 public class BlockHitEvent extends Event {
-   private LivingEntity player;
-   private BlockHitResult blockHitResult;
-   @Nullable
-   private Entity projectile;
+	private LivingEntity player;
+	private BlockHitResult blockHitResult;
+	@Nullable private Entity projectile;
 
-   public BlockHitEvent(LivingEntity player, BlockHitResult blockHitResult, Entity projectile) {
-      this.player = player;
-      this.blockHitResult = blockHitResult;
-      this.projectile = projectile;
-   }
+	public BlockHitEvent(LivingEntity player, BlockHitResult blockHitResult, Entity projectile) {
+		this.player = player;
+		this.blockHitResult = blockHitResult;
+		this.projectile = projectile;
+	}
 
-   public boolean isCancelable() {
-      return true;
-   }
+	public boolean isCancelable() {
+		return true;
+	}
 
-   public LivingEntity getPlayer() {
-      return this.player;
-   }
+	public LivingEntity getPlayer() {
+		return this.player;
+	}
 
-   public BlockHitResult getBlockHitResult() {
-      return this.blockHitResult;
-   }
+	public BlockHitResult getBlockHitResult() {
+		return this.blockHitResult;
+	}
 
-   public Entity getProjectile() {
-      return this.projectile;
-   }
+	public Entity getProjectile() {
+		return this.projectile;
+	}
 }

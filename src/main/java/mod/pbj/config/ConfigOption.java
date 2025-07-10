@@ -4,24 +4,24 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public interface ConfigOption<T> extends Supplier<T> {
-   int getIndex();
+	int getIndex();
 
-   List<String> getPath();
+	List<String> getPath();
 
-   List<String> getSerialized();
+	List<String> getSerialized();
 
-   default String getName() {
-      return String.join(".", this.getPath());
-   }
+	default String getName() {
+		return String.join(".", this.getPath());
+	}
 
-   default String getSimpleName() {
-      List<String> path = this.getPath();
-      return (String)this.getPath().get(path.size() - 1);
-   }
+	default String getSimpleName() {
+		List<String> path = this.getPath();
+		return (String)this.getPath().get(path.size() - 1);
+	}
 
-   default ConfigOption<?> copy(ConfigOption<?> source, Object value) {
-      return this.createCopy(source.get(), source.getIndex());
-   }
+	default ConfigOption<?> copy(ConfigOption<?> source, Object value) {
+		return this.createCopy(source.get(), source.getIndex());
+	}
 
-   ConfigOption<?> createCopy(Object var1, int var2);
+	ConfigOption<?> createCopy(Object var1, int var2);
 }

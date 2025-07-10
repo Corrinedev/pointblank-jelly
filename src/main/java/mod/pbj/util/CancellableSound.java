@@ -13,31 +13,35 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 
 public final class CancellableSound extends AbstractTickableSoundInstance {
-   private Predicate<CancellableSound> predicate;
-   private final Player player;
+	private Predicate<CancellableSound> predicate;
+	private final Player player;
 
-   public CancellableSound(Player player, SoundEvent soundEvent, SoundSource soundSource, RandomSource randomSource, Predicate<CancellableSound> predicate) {
-      super(soundEvent, soundSource, randomSource);
-      this.player = player;
-      this.predicate = predicate;
-   }
+	public CancellableSound(
+		Player player,
+		SoundEvent soundEvent,
+		SoundSource soundSource,
+		RandomSource randomSource,
+		Predicate<CancellableSound> predicate) {
+		super(soundEvent, soundSource, randomSource);
+		this.player = player;
+		this.predicate = predicate;
+	}
 
-   public void tick() {
-      if (!this.predicate.test(this)) {
-         this.stop();
-      }
+	public void tick() {
+		if (!this.predicate.test(this)) {
+			this.stop();
+		}
+	}
 
-   }
+	public double getX() {
+		return this.player.getX();
+	}
 
-   public double getX() {
-      return this.player.getX();
-   }
+	public double getY() {
+		return this.player.getY();
+	}
 
-   public double getY() {
-      return this.player.getY();
-   }
-
-   public double getZ() {
-      return this.player.getZ();
-   }
+	public double getZ() {
+		return this.player.getZ();
+	}
 }

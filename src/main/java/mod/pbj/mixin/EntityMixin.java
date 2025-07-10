@@ -7,14 +7,13 @@ import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(value = {Entity.class})
 public class EntityMixin implements EntityExt {
-   @Unique
-   private long lastHitSoundTimestamp;
+	@Unique private long lastHitSoundTimestamp;
 
-   public long getLastHitSoundTimestamp() {
-      return this.lastHitSoundTimestamp;
-   }
+	public long getLastHitSoundTimestamp() {
+		return this.lastHitSoundTimestamp;
+	}
 
-   public void setLastHitSoundTimestamp(long lastHitSoundTimestamp) {
-      this.lastHitSoundTimestamp = lastHitSoundTimestamp;
-   }
+	public void setLastHitSoundTimestamp(long lastHitSoundTimestamp) {
+		this.lastHitSoundTimestamp = lastHitSoundTimestamp;
+	}
 }
