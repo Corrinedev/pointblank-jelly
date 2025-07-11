@@ -41,9 +41,6 @@ public class Config {
 	public static final BooleanValue PLAYERHEADSHOTS;
 	public static final BooleanValue MOBHEADSHOTS;
 	public static final IntValue IFRAMES;
-	public static final ConfigValue<ReticleRenderType> PIP_OVERLAY_RENDER_TYPE;
-	public static final BooleanValue HANDS_ENABLED;
-	public static final BooleanValue RETICLES_ENABLED;
 
 	public static AutoReload autoReload;
 	public static double scopeAimingMouseSensitivity;
@@ -181,18 +178,10 @@ public class Config {
 		PLAYERHEADSHOTS = BUILDER.comment("Enables player headshots, recommended to disable if using FirstAid")
 							  .define("playerHeadshots", true);
 		MOBHEADSHOTS = BUILDER.comment("Enables mob headshots").define("playerHeadshots", true);
-		PIP_OVERLAY_RENDER_TYPE = BUILDER.comment("How to render pip overlays (PARALLAX, NON_PARALLAX, or DISABLED)")
-									  .defineEnum("pipOverlayRenderType", ReticleRenderType.PARALLAX);
-		HANDS_ENABLED = BUILDER.comment("Whether to render hands holding gun").define("handsEnabled", true);
-		RETICLES_ENABLED =
-			BUILDER.comment("Whether to render reticles on red-dot sights/scopes").define("reticlesEnabled", true);
 
 		SPEC = BUILDER.build();
 	}
 
 	public enum AutoReload { CREATIVE, SURVIVAL, ENABLED, DISABLED }
-
 	public enum CrosshairType { DEFAULT, VANILLA, DISABLED }
-
-	public enum ReticleRenderType { DISABLED, NON_PARALLAX, PARALLAX }
 }

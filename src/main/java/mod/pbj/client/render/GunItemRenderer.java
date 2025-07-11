@@ -48,6 +48,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.SeparateTransformsModel;
 import org.joml.*;
 import org.lwjgl.opengl.GL30;
+import org.vivecraft.api_beta.client.VivecraftClientAPI;
+
 import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.*;
 import software.bernie.geckolib.model.GeoModel;
@@ -537,6 +539,7 @@ public class GunItemRenderer
 		// regardless of whether we are in VR or not
 		if (ClientSystem.getInstance().getAuxLevelRenderer().isRenderingPip())
 			return;
+		final var vrActive = VivecraftClientAPI.getInstance().isVrActive();
 		RenderPass renderPass = RenderPass.current();
 		if (this.shouldRenderBone(bone.getName())) {
 			HierarchicalRenderContext hrc = HierarchicalRenderContext.current();
@@ -561,7 +564,7 @@ public class GunItemRenderer
 					this.renderGlow(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 					break;
 				case HANDS:
-					if (!Config.HANDS_ENABLED.get())
+					if (vrActive)
 						break;
 					switch (bone.getName()) {
 						case "rightarm" ->
@@ -578,25 +581,17 @@ public class GunItemRenderer
 					}
 					break;
 				case PIP_OVERLAY:
-					if (!bone.getName().equals("scopepip"))
-						break;
-					switch (Config.PIP_OVERLAY_RENDER_TYPE.get()) {
-						case PARALLAX ->
-							this.renderPipOverlay(
-								poseStack,
-								bone,
-								buffer,
-								packedLight,
-								red,
-								green,
-								blue,
-								aimingProgress,
-								PipItemLayer.isParallaxEnabled());
-						case NON_PARALLAX ->
-							this.renderPipOverlay(
-								poseStack, bone, buffer, packedLight, red, green, blue, aimingProgress, false);
-						case DISABLED -> {
-						}
+					if (bone.getName().equals("scopepip")) {
+						this.renderPipOverlay(
+							poseStack,
+							bone,
+							buffer,
+							packedLight,
+							red,
+							green,
+							blue,
+							aimingProgress,
+							PipItemLayer.isParallaxEnabled() && !vrActive);
 					}
 					break;
 				case PIP_MASK:
@@ -605,10 +600,8 @@ public class GunItemRenderer
 					}
 					break;
 				case RETICLE:
-					if (!Config.RETICLES_ENABLED.get())
-						break;
-					final var isParallaxEnabled = ReticleItemLayer.isParallaxEnabled();
-					if (isParallaxEnabled && bone.getName().equals("reticle")) {
+					boolean isParallaxEnabled = ReticleItemLayer.isParallaxEnabled();
+					if (isParallaxEnabled && bone.getName().equals("reticle") && !vrActive) {
 						this.renderReticleWithParallax(
 							poseStack,
 							bone,

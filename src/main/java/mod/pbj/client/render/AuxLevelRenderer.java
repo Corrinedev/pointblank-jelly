@@ -43,9 +43,15 @@ public class AuxLevelRenderer {
 	}
 
 	public RenderTarget getRenderTarget() {
-		// if (vivecraftClient.currentPass == org.vivecraft.client_vr.render.RenderPass.SCOPER)
+		/**
+		 * vivecraft-compat: unfortunately i don't think there's a way to dynamically
+		 * switch between RenderTargets here, as this method seems to be called only
+		 * once and the caller just saves and reuses the RenderTarget it got. plus,
+		 * i don't think VR players have the need to switch between playing normally
+		 * and in VR...? so while this works perfectly for VR, it looks like this branch
+		 * will have to coexist with master; it can't be merged in this state.
+		 */
 		return vivecraftClient.vrRenderer.telescopeFramebufferR;
-		// return this.renderTarget;
 	}
 
 	public boolean isRenderingPip() {
