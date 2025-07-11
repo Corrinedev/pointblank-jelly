@@ -44,7 +44,7 @@ public abstract class PlayerAnimatorCompat implements ResourceManagerReloadListe
 		if (instance == null) {
 			ModFileInfo compatModFileInfo = LoadingModList.get().getModFileById("playeranimator");
 			if (compatModFileInfo != null) {
-				String playerAnimatorClassName = "playeranimator.compat.mod.pbj.PlayerAnimatorCompatImpl";
+				String playerAnimatorClassName = "mod.pbj.compat.playeranimator.PlayerAnimatorCompatImpl";
 
 				try {
 					Class<?> playerAnimatorClass = Class.forName(playerAnimatorClassName);
