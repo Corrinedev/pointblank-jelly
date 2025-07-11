@@ -1283,8 +1283,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 	public void
 	requestFireFromServer(GunClientState gunClientState, Player player, ItemStack itemStack, Entity targetEntity) {
 		int activeSlot = player.getInventory().selected;
-		LOGGER.debug(
-			"[GunItem.requestFireFromServer] {} requesting fire from server", System.currentTimeMillis() % 100000L);
+		LOGGER.debug("{} requesting fire from server", System.currentTimeMillis() % 100000L);
 		SoundFeature.playFireSound(player, itemStack);
 		Pair<Integer, Double> pcs = FireModeFeature.getPelletCountAndSpread(player, gunClientState, itemStack);
 		int shotCount = pcs.getFirst() > 0 ? pcs.getFirst() : 1;
@@ -1295,7 +1294,6 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 		AmmoItem projectileItem = this.getFirstCompatibleProjectile(itemStack, fireModeInstance);
 
 		if (projectileItem != null) {
-			LOGGER.trace("[GunItem.requestFireFromServer] in projectile case");
 			GunStatePoseProvider gunStatePoseProvider = GunStatePoseProvider.getInstance();
 			Vec3[] pd = gunStatePoseProvider.getPositionAndDirection(gunClientState, PoseContext.FIRST_PERSON_MUZZLE);
 			if (pd == null) {
@@ -1327,15 +1325,13 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 				targetEntity != null ? targetEntity.getId() : -1,
 				requestSeed));
 		} else {
-			LOGGER.trace("[GunItem.requestFireFromServer] in hitscan case");
 			double adjustedInaccuracy = this.adjustInaccuracy(player, itemStack, gunClientState.isAiming());
 			long itemSeed = getOrAssignRandomSeed(itemStack);
 			long xorSeed = itemSeed ^ requestSeed;
 			this.acquireHitScan(player, itemStack, gunClientState, shotCount, xorSeed, adjustedInaccuracy);
 			Network.networkChannel.sendToServer(new HitScanFireRequestPacket(
 				fireModeInstance, getItemStackId(itemStack), activeSlot, gunClientState.isAiming(), requestSeed));
-			LOGGER.debug(
-				"[GunItem.requestFireFromServer] {} sent fire request to server", System.currentTimeMillis() % 100000L);
+			LOGGER.debug("{} sent fire request to server", System.currentTimeMillis() % 100000L);
 		}
 	}
 
@@ -1521,7 +1517,6 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 		double spawnDirectionZ,
 		int targetEntityId,
 		long requestSeed) {
-		LOGGER.trace("[GunItem.handleClientProjectileFireRequest] called");
 		ItemStack itemStack = player.getInventory().getItem(slotIndex);
 		AmmoItem projectileItem = this.getFirstCompatibleProjectile(itemStack, fireModeInstance);
 		if (projectileItem == null) {
@@ -1614,16 +1609,13 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 		boolean isAiming,
 		long requestSeed) {
 		try {
-			LOGGER.debug(
-				"[GunItem.handleClientHitScanFireRequest] {} handling client fire request",
-				System.currentTimeMillis() % 100000L);
+			LOGGER.debug("{} handling client fire request", System.currentTimeMillis() % 100000L);
 			ItemStack itemStack = player.getInventory().getItem(slotIndex);
 			AmmoItem projectileItem = this.getFirstCompatibleProjectile(itemStack, fireModeInstance);
 			if (projectileItem != null) {
 				LOGGER.error(
-					"[GunItem.handleClientHitScanFireRequest] Attempted to handle client hit scan fire request with " +
-					"an item that fires projectiles: " +
-					this);
+					"Attempted to handle client hit scan fire request with "
+					+ "an item that fires projectiles: " + this);
 				return;
 			}
 
@@ -1654,7 +1646,6 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 				double maxHitScanDistance = this.getMaxServerShootingDistance(itemStack, isAiming, level);
 				List<BlockPos> blockPosToDestroy = new ArrayList<>();
 				if (this.hitscan) {
-					LOGGER.debug("[GunItem.handleClientHitScanFireRequest] in hitscan case");
 					hitResults.addAll(HitScan.getObjectsInCrosshair(
 						player,
 						eyePos,
@@ -1668,7 +1659,6 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 						this.getPassThroughBlocksByHitScanPredicate(),
 						blockPosToDestroy));
 				} else { // PBJ code to fire projectile bullets instead of hitscan
-					LOGGER.debug("[GunItem.handleClientHitScanFireRequest] in projectile case");
 					BulletData modifiedBulletData = this.bulletData;
 					List<Features.EnabledFeature> modifiers =
 						Features.getEnabledFeatures(itemStack, BulletModifierFeature.class);
@@ -1713,9 +1703,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 						player.level().addFreshEntity(bullet);
 					}
 				}
-				LOGGER.debug(
-					"[GunItem.handleClientHitScanFireRequest] {} obtained hit results",
-					System.currentTimeMillis() % 100000L);
+				LOGGER.debug("{} obtained hit results", System.currentTimeMillis() % 100000L);
 
 				for (HitResult hitResult : hitResults) {
 					this.hitScanTarget(
@@ -1725,8 +1713,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error(
-				"[GunItem.handleClientHitScanFireRequest] Failed to handle client hit scan fire request: {}", e);
+			LOGGER.error("Failed to handle client hit scan fire request: {}", e);
 		}
 	}
 

@@ -242,7 +242,7 @@ public class EffectLauncher implements GunStateListener {
 								.withDamage(damage)
 								.withHitResult(hitResult);
 						Effect effect = builder.build(effectBuilderContext);
-						LOGGER.debug("[EffectLauncher.applyPhaseEffects] Launching effect '{}'", effect.getName());
+						LOGGER.debug("Launching effect {}", effect.getName());
 						effect.launch(player);
 					}
 				}
