@@ -1,6 +1,5 @@
 package mod.pbj;
 
-import com.mojang.brigadier.CommandDispatcher;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,7 +9,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import mod.pbj.client.ClientEventHandler;
 import mod.pbj.client.GunClientState;
-import mod.pbj.client.commands.TestCommand;
 import mod.pbj.crafting.PointBlankRecipeProvider;
 import mod.pbj.entity.ItemsAndEmeraldsToItems;
 import mod.pbj.event.AttachmentRemovedEvent;
@@ -26,7 +24,6 @@ import mod.pbj.util.InventoryUtils;
 import mod.pbj.util.MiscUtil;
 import mod.pbj.util.ServerTaskScheduler;
 import mod.pbj.util.Tradeable;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -47,7 +44,6 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
@@ -124,15 +120,6 @@ public class PointBlankJelly {
 		modEventBus.addListener(this::onGatherData);
 		MinecraftForge.EVENT_BUS.register(this);
 		Network.setupNetworkChannel();
-	}
-
-	@Mod.EventBusSubscriber(modid = "pointblank", bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-	public static class ClientModEvents {
-		@SubscribeEvent
-		public static void RegisterClientCommandsEvent(RegisterClientCommandsEvent event) {
-			CommandDispatcher<CommandSourceStack> dispatcher = event.getDispatcher();
-			TestCommand.register(dispatcher);
-		}
 	}
 
 	public static void registerMolang() {
