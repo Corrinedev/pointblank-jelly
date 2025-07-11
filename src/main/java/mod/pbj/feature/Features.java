@@ -196,6 +196,9 @@ public class Features {
 			case "ADSSPEED" -> {
 				return (new AdsSpeedFeature.Builder()).withJsonObject(obj);
 			}
+			case "HITEFFECT" -> {
+				return new HitEffectFeature.HitEffectBuilder().withJsonObject(obj);
+			}
 			default -> throw new IllegalArgumentException("Invalid feature type: " + featureType);
 		}
 	}

@@ -1,9 +1,14 @@
 package mod.pbj.feature;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.function.Predicate;
+
+import com.google.gson.JsonPrimitive;
+import mod.pbj.PointBlankJelly;
 import mod.pbj.client.GunClientState;
+import mod.pbj.feature.math.FeatureVariables;
 import mod.pbj.item.GunItem;
 import mod.pbj.script.Script;
 import mod.pbj.util.Conditions;
@@ -16,13 +21,20 @@ import org.jetbrains.annotations.Nullable;
 
 public class AdsSpeedFeature extends ConditionalFeature {
 	private float adsMultiplier;
+	@Nullable
+	private String adsExpression;
 	@Nullable private Script script;
 
-	public AdsSpeedFeature(
-		FeatureProvider owner, Predicate<ConditionContext> predicate, float adsMultiplier, Script script) {
-		super(owner, predicate);
+	public AdsSpeedFeature(FeatureProvider owner, Predicate<ConditionContext> predicate, float adsMultiplier, @Nullable String adsExpression, Script script) {
+		super(owner, predicate, FeatureVariables.createDefaults(
+				"health",
+				"maxhealth",
+				"speed",
+				"damage"
+		));
 		this.adsMultiplier = adsMultiplier;
-		this.script = script;
+        this.adsExpression = adsExpression;
+        this.script = script;
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -35,6 +47,12 @@ public class AdsSpeedFeature extends ConditionalFeature {
 
 		for (Features.EnabledFeature enabledFeature : enabledAccuracyFeatures) {
 			AdsSpeedFeature adsFeature = (AdsSpeedFeature)enabledFeature.feature();
+			// Apply Variables
+			adsFeature.mathParser.set("health", player.getHealth());
+			adsFeature.mathParser.set("maxhealth", player.getMaxHealth());
+			adsFeature.mathParser.set("speed", player.getDeltaMovement().horizontalDistance());
+			adsFeature.mathParser.set("damage", GunItem.getFireModeInstance(itemStack).getDamage());
+
 			if (adsFeature.predicate.test(new ConditionContext(player, itemStack, state))) {
 				// Adds more accuracy modification
 				if (adsFeature.hasScript() && adsFeature.hasFunction("addAdsSpeedModifier"))
@@ -50,7 +68,7 @@ public class AdsSpeedFeature extends ConditionalFeature {
 	}
 
 	public float getAdsMultiplier() {
-		return adsMultiplier;
+		return (float) getMathValue(adsMultiplier, adsExpression);
 	}
 
 	@Override
@@ -62,6 +80,7 @@ public class AdsSpeedFeature extends ConditionalFeature {
 		private Predicate<ConditionContext> condition = (ctx) -> true;
 		private float adsSpeedMultiplier;
 		private Script script;
+		private @Nullable String adsExpression;
 
 		public Builder() {}
 
@@ -70,8 +89,14 @@ public class AdsSpeedFeature extends ConditionalFeature {
 			return this;
 		}
 
-		public AdsSpeedFeature.Builder withAdsSpeedMultiplier(double adsSpeed) {
-			this.adsSpeedMultiplier = (float)adsSpeed;
+		public AdsSpeedFeature.Builder withAdsSpeedMultiplier(JsonElement element) {
+			if(element.isJsonPrimitive()) {
+				JsonPrimitive primitive = (JsonPrimitive) element;
+				if(primitive.isNumber())
+					this.adsSpeedMultiplier = primitive.getAsFloat();
+				else if(primitive.isString())
+					this.adsExpression = primitive.getAsString();
+			}
 			return this;
 		}
 
@@ -80,7 +105,7 @@ public class AdsSpeedFeature extends ConditionalFeature {
 				this.withCondition(Conditions.fromJson(obj.getAsJsonObject("condition")));
 			}
 
-			this.withAdsSpeedMultiplier(JsonUtil.getJsonFloat(obj, "adsModifier"));
+			this.withAdsSpeedMultiplier(obj.get("adsModifier"));
 			return this;
 		}
 
@@ -90,7 +115,7 @@ public class AdsSpeedFeature extends ConditionalFeature {
 		}
 
 		public AdsSpeedFeature build(FeatureProvider featureProvider) {
-			return new AdsSpeedFeature(featureProvider, this.condition, this.adsSpeedMultiplier, script);
+			return new AdsSpeedFeature(featureProvider, this.condition, this.adsSpeedMultiplier, this.adsExpression, script);
 		}
 	}
 }

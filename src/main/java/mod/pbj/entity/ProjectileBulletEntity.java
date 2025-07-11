@@ -1,6 +1,12 @@
 package mod.pbj.entity;
 
+import com.mojang.datafixers.util.Pair;
 import mod.pbj.Config;
+import mod.pbj.client.GunClientState;
+import mod.pbj.feature.ConditionContext;
+import mod.pbj.feature.Features;
+import mod.pbj.feature.HitEffectFeature;
+import mod.pbj.item.GunItem;
 import mod.pbj.network.HitScanFireResponsePacket;
 import mod.pbj.network.Network;
 import mod.pbj.registry.SoundRegistry;
@@ -29,6 +35,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.*;
 import net.minecraftforge.network.PacketDistributor;
+
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static mod.pbj.item.GunItem.getItemStackId;
 
@@ -171,7 +181,7 @@ public class ProjectileBulletEntity extends AbstractHurtingProjectile {
 		this.initPos = new Vec3(shooter.getX(), shooter.getEyeY() - (double)0.1F, shooter.getZ());
 		this.maxDistance = maxDistance;
 		this.headshotMultiplier = headshotMultiplier;
-		this.gunStack = gunStack;
+		this.gunStack = gunStack.copy();
 		this.correlationId = correlationId;
 	}
 
@@ -279,6 +289,18 @@ public class ProjectileBulletEntity extends AbstractHurtingProjectile {
 			pResult.getEntity().hurt(damageSource, (float)(damage * headshotmulti));
 			// Lower invulnerability for gun firing (Full auto more viable)
 			pResult.getEntity().invulnerableTime = Config.iframes;
+			if(!(this.getOwner() instanceof Player) || !(pResult.getEntity() instanceof LivingEntity) || this.gunStack == null) {this.gunStack = null; this.discard(); return;}
+			List<HitEffectFeature> features = Features.getEnabledFeatures(gunStack, HitEffectFeature.class).stream().map(feature -> (HitEffectFeature)feature.feature()).toList();
+			for (HitEffectFeature feature : features) {
+				ConditionContext conditionContext = new ConditionContext((Player) this.getOwner(), gunStack, GunClientState.getMainHeldState((Player) this.getOwner()));
+				HitEffectFeature.HitContext hitContext = new HitEffectFeature.HitContext((Player) this.getOwner(), (LivingEntity) pResult.getEntity(), (GunItem) gunStack.getItem(), gunStack, feature.mathParser());
+				for (Pair<Consumer<HitEffectFeature.HitContext>, Predicate<ConditionContext>> consumerPredicatePair : feature.effect) {
+					if (consumerPredicatePair.getSecond().test(conditionContext)) {
+						consumerPredicatePair.getFirst().accept(hitContext);
+					}
+				}
+			}
+			this.gunStack = null;
 			this.discard();
 		}
 	}

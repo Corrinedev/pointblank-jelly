@@ -489,7 +489,7 @@ public class ClientEventHandler {
 				int activeSlot = minecraft.player.getInventory().selected;
 				GunClientState gunClientState = GunClientState.getState(minecraft.player, itemStack, activeSlot, false);
 				if (gunClientState != null) {
-					float aimingZoom = this.zoomValue.update(AimingFeature.getZoom(itemStack));
+					float aimingZoom = this.zoomValue.update(AimingFeature.getZoom(itemStack, minecraft.player));
 					BiDirectionalInterpolator aimingController =
 						(BiDirectionalInterpolator)gunClientState.getAnimationController("aiming");
 					float zoomAdj = aimingZoom * (float)aimingController.getValue();

@@ -33,6 +33,7 @@ public class FeatureTypeRegistry {
 	public static final int ADS_SPEED_FEATURE = registerFeatureType(AdsSpeedFeature.class);
 	public static final int DEFENSE_FEATURE = registerFeatureType(DefenseFeature.class);
 	public static final int SLOT_FEATURE = registerFeatureType(SlotFeature.class);
+	public static final int HIT_EFFECT_FEATURE = registerFeatureType(HitEffectFeature.class);
 
 	private static int registerFeatureType(Class<? extends Feature> featureType) {
 		++featureTypeId;

@@ -12,6 +12,7 @@ import mod.pbj.client.GunClientState;
 import mod.pbj.crafting.PointBlankRecipeProvider;
 import mod.pbj.entity.ItemsAndEmeraldsToItems;
 import mod.pbj.event.AttachmentRemovedEvent;
+import mod.pbj.feature.math.FeatureVariables;
 import mod.pbj.item.AmmoItem;
 import mod.pbj.item.FireModeInstance;
 import mod.pbj.item.GunItem;
@@ -93,6 +94,7 @@ public class PointBlankJelly {
 		GeckoLib.initialize();
 
 		registerMolang();
+		FeatureVariables.createGlobal();
 		FeatureTypeRegistry.init();
 		this.extensionRegistry = new ExtensionRegistry();
 		Dist side = FMLLoader.getDist();

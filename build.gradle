@@ -137,9 +137,6 @@ dependencies {
     implementation fg.deobf("curse.maven:first-aid-276837:5531834")
     implementation fg.deobf("curse.maven:legendary-survival-overhaul-840254:6680779")
 
-    //minecraftLibrary(jarJar('org.mozilla:rhino:1.8.0')) {
-    //    jarJar.ranged(it, "[1.8.0,)")
-    //}
     //Groovy
 
     //compileOnly 'org.groovymc.gml:gml:4.0.0'

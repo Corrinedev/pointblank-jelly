@@ -2,6 +2,8 @@ package mod.pbj.util;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
+
 import mod.pbj.item.GunItem;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -112,5 +114,15 @@ public class MiscUtil {
 	public static UUID getItemStackId(ItemStack itemStack) {
 		CompoundTag idTag = itemStack.getTag();
 		return getTagId(idTag);
+	}
+
+	public static <T> T getNullOrDefault(T value, T Default) {
+		if(value != null) return value;
+		return Default;
+	}
+
+	public static <T> T apply(T value, Consumer<T> applier) {
+		applier.accept(value);
+		return value;
 	}
 }

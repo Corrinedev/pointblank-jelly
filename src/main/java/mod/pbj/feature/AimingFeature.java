@@ -1,6 +1,8 @@
 package mod.pbj.feature;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import java.util.NavigableMap;
@@ -9,6 +11,7 @@ import mod.pbj.attachment.AttachmentCategory;
 import mod.pbj.attachment.AttachmentModelInfo;
 import mod.pbj.attachment.Attachments;
 import mod.pbj.client.GunStateListener;
+import mod.pbj.feature.math.FeatureVariables;
 import mod.pbj.item.GunItem;
 import mod.pbj.registry.ExtensionRegistry;
 import mod.pbj.script.Script;
@@ -17,6 +20,7 @@ import mod.pbj.util.JsonUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,6 +34,8 @@ public final class AimingFeature extends ConditionalFeature implements GunStateL
 	private final float zoom;
 	private final float viewBobbing;
 	private final Script script;
+	@Nullable
+	private String zoomExpression;
 
 	@OnlyIn(Dist.CLIENT)
 	public static void
@@ -77,12 +83,19 @@ public final class AimingFeature extends ConditionalFeature implements GunStateL
 		float zoom,
 		float viewBobbing,
 		Matrix4f aimMatrix,
+		@Nullable String zoomExpression,
 		Script script) {
-		super(owner, predicate);
+		super(owner, predicate, FeatureVariables.createDefaults(
+				"health",
+				"maxhealth",
+				"speed",
+				"damage"
+		));
 		this.zoom = zoom;
 		this.viewBobbing = viewBobbing;
 		this.script = script;
 		this.aimMatrix = aimMatrix;
+		this.zoomExpression = zoomExpression;
 	}
 
 	public MutableComponent getDescription() {
@@ -91,14 +104,14 @@ public final class AimingFeature extends ConditionalFeature implements GunStateL
 	}
 
 	public float getZoom() {
-		return this.zoom;
+		return (float) getMathValue(zoom, zoomExpression);
 	}
 
 	public float getViewBobbing() {
 		return this.viewBobbing;
 	}
 
-	public static float getZoom(ItemStack itemStack) {
+	public static float getZoom(ItemStack itemStack, Player player) {
 		Pair<String, ItemStack> selected = Attachments.getSelectedAttachment(itemStack, AttachmentCategory.SCOPE);
 		ItemStack selectedStack = null;
 		if (selected != null) {
@@ -111,6 +124,11 @@ public final class AimingFeature extends ConditionalFeature implements GunStateL
 		if (item instanceof FeatureProvider fp) {
 			AimingFeature feature = fp.getFeature(AimingFeature.class);
 			if (feature != null) {
+				feature.mathParser.set("health", player.getHealth());
+				feature.mathParser.set("maxhealth", player.getMaxHealth());
+				feature.mathParser.set("speed", player.getDeltaMovement().normalize().horizontalDistance());
+				feature.mathParser.set("damage", GunItem.getFireModeInstance(itemStack).getDamage());
+
 				if (feature.hasScript() && feature.hasFunction("getZoom"))
 					return (float)feature.invokeFunction("getZoom", itemStack, feature);
 				return feature.getZoom();
@@ -210,6 +228,8 @@ public final class AimingFeature extends ConditionalFeature implements GunStateL
 		public ExtensionRegistry.Extension extension;
 		private Script script;
 		private Matrix4f aimMatrix;
+		@Nullable
+		private String zoomExpression;
 
 		public Builder() {}
 
@@ -218,8 +238,18 @@ public final class AimingFeature extends ConditionalFeature implements GunStateL
 			return this;
 		}
 
-		public Builder withZoom(double zoom) {
-			this.zoom = (float)zoom;
+		public Builder withZoom(JsonElement zoom) {
+			if(zoom == null) {
+				this.zoom = 0.1f;
+				return this;
+			}
+			if(zoom.isJsonPrimitive()) {
+				JsonPrimitive primitive = (JsonPrimitive) zoom;
+				if(primitive.isNumber())
+					this.zoom = primitive.getAsFloat();
+				else if(primitive.isString())
+					this.zoomExpression = primitive.getAsString();
+			}
 			return this;
 		}
 
@@ -243,7 +273,7 @@ public final class AimingFeature extends ConditionalFeature implements GunStateL
 				this.withCondition(Conditions.fromJson(obj.getAsJsonObject("condition")));
 			}
 
-			this.withZoom(JsonUtil.getJsonFloat(obj, "zoom", 0.1F));
+			this.withZoom(obj.get("zoom"));
 			this.withViewBobbing(JsonUtil.getJsonFloat(obj, "viewBobbing", 1.0F));
 			this.withScript(JsonUtil.getJsonScript(obj));
 			return this;
@@ -251,7 +281,12 @@ public final class AimingFeature extends ConditionalFeature implements GunStateL
 
 		public AimingFeature build(FeatureProvider featureProvider) {
 			return new AimingFeature(
-				featureProvider, this.condition, this.zoom, this.viewBobbing, this.aimMatrix, script);
+				featureProvider, this.condition, this.zoom, this.viewBobbing, this.aimMatrix, this.zoomExpression, script);
+		}
+
+		public Builder withPrimitiveZoom(float aimingZoom) {
+			this.zoom = aimingZoom;
+			return this;
 		}
 	}
 }

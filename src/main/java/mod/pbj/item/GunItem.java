@@ -433,7 +433,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 
 		AimingFeature aimingFeature = (AimingFeature)features.get(AimingFeature.class);
 		if (aimingFeature == null && builder.isAimingEnabled) {
-			features.put(AimingFeature.class, (new AimingFeature.Builder()).withZoom(this.aimingZoom).build(this));
+			features.put(AimingFeature.class, (new AimingFeature.Builder()).withPrimitiveZoom((float) this.aimingZoom).build(this));
 		}
 
 		PipFeature pipFeature = (PipFeature)features.get(PipFeature.class);
@@ -1389,7 +1389,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 			adjustedInaccuracy += pcs.getSecond();
 		}
 
-		float accuracyModifier = AccuracyFeature.getAccuracyModifier(itemStack);
+		float accuracyModifier = AccuracyFeature.getAccuracyModifier(itemStack, player);
 		return adjustedInaccuracy / (double)accuracyModifier;
 	}
 
