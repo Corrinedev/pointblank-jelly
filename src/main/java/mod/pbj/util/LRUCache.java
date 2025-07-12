@@ -20,7 +20,12 @@ public class LRUCache<K, V> {
 	}
 
 	public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
-		return this.getCache().computeIfAbsent(key, mappingFunction);
+		// avoid ConcurrentModificationException thrown by computeIfAbsent
+		final var cache = getCache();
+		var value = cache.get(key);
+		if (value == null)
+			cache.put(key, value = mappingFunction.apply(key));
+		return value;
 	}
 
 	public V get(K key) {

@@ -92,6 +92,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Quaternionf;
 import org.joml.Vector2ic;
+import org.vivecraft.api_beta.client.VivecraftClientAPI;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -320,11 +321,14 @@ public class ClientEventHandler {
 
 				this.leftMouseButtonDown = leftMouseButtonDown;
 				boolean rightMouseButtonDown = mc.options.keyUse.isDown();
-				if (rightMouseButtonDown && !this.rightMouseButtonDown) {
-					this.rightMouseButtonDown();
-				} else if (!rightMouseButtonDown && this.rightMouseButtonDown) {
-					this.rightMouseButtonRelease();
-				}
+				final var vrActive = VivecraftClientAPI.getInstance().isVrActive();
+				// maybe make this configurable if requested
+				if (!vrActive)
+					if (rightMouseButtonDown && !this.rightMouseButtonDown) {
+						this.rightMouseButtonDown();
+					} else if (!rightMouseButtonDown && this.rightMouseButtonDown) {
+						this.rightMouseButtonRelease();
+					}
 
 				GunClientState state = GunClientState.getMainHeldState();
 
@@ -410,6 +414,11 @@ public class ClientEventHandler {
 
 				if (this.inventorySlotChanged || this.currentSlotHasGunChanged) {
 					this.jumpController.reset();
+					// always aim in vr
+					// currentSlotHasGunChanged only lasts 1 tick, which the player has probably spent still in the
+					// inventory. maybe figure out a way to make it aim when it's first rendered instead of ticked
+					if (vrActive && heldItem.getItem() instanceof final GunItem gunItem && gunItem.isAimingEnabled())
+						this.toggleAiming(player, true);
 				}
 
 				this.leftMouseButtonDown = leftMouseButtonDown;

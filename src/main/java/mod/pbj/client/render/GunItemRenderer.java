@@ -17,7 +17,6 @@ import mod.pbj.client.GunStatePoseProvider.PoseContext;
 import mod.pbj.client.controller.GlowAnimationController;
 import mod.pbj.client.controller.RotationAnimationController;
 import mod.pbj.client.effect.EffectRenderContext;
-import mod.pbj.client.effect.MuzzleFlashEffect;
 import mod.pbj.client.gui.AttachmentManagerScreen;
 import mod.pbj.client.model.GunGeoModel;
 import mod.pbj.client.render.layer.*;
@@ -36,6 +35,7 @@ import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
@@ -48,6 +48,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.SeparateTransformsModel;
 import org.joml.*;
 import org.lwjgl.opengl.GL30;
+import org.vivecraft.api_beta.client.VivecraftClientAPI;
+
 import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.*;
 import software.bernie.geckolib.model.GeoModel;
@@ -342,21 +344,32 @@ public class GunItemRenderer
 					texV = vertex.texV();
 				}
 
-				buffer.vertex(
-					vector4f.x(),
-					vector4f.y(),
-					vector4f.z(),
-					red,
-					green,
-					blue,
-					alpha,
-					texU,
-					texV,
-					packedOverlay,
-					packedLight,
-					normal.x(),
-					normal.y(),
-					normal.z());
+				// kept getting IllegalStateException from the (BufferBuilder/VertexConsumer).vertex method
+				// retrying solves the issue
+				try {
+					buffer.vertex(
+						vector4f.x(),
+						vector4f.y(),
+						vector4f.z(),
+						red,
+						green,
+						blue,
+						alpha,
+						texU,
+						texV,
+						packedOverlay,
+						packedLight,
+						normal.x(),
+						normal.y(),
+						normal.z());
+				} catch (final IllegalStateException e) {
+					final var player = Minecraft.getInstance().player;
+					if (player != null)
+						player.sendSystemMessage(Component.nullToEmpty(
+							"[GunItemRenderer.createVerticesOfQuad] buffer.vertex() failed, retrying"));
+					--i;
+					continue;
+				}
 			}
 		}
 	}
@@ -522,6 +535,11 @@ public class GunItemRenderer
 		float green,
 		float blue,
 		float alpha) {
+		// i don't think it makes sense to see your gun through its scope,
+		// regardless of whether we are in VR or not
+		if (ClientSystem.getInstance().getAuxLevelRenderer().isRenderingPip())
+			return;
+		final var vrActive = VivecraftClientAPI.getInstance().isVrActive();
 		RenderPass renderPass = RenderPass.current();
 		if (this.shouldRenderBone(bone.getName())) {
 			HierarchicalRenderContext hrc = HierarchicalRenderContext.current();
@@ -546,12 +564,15 @@ public class GunItemRenderer
 					this.renderGlow(poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 					break;
 				case HANDS:
-					if (bone.getName().equals("rightarm")) {
-						this.renderRightArm(
-							poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
-					} else if (bone.getName().equals("leftarm")) {
-						this.renderLeftArm(
-							poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+					if (vrActive)
+						break;
+					switch (bone.getName()) {
+						case "rightarm" ->
+							this.renderRightArm(
+								poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
+						case "leftarm" ->
+							this.renderLeftArm(
+								poseStack, bone, buffer, packedLight, packedOverlay, red, green, blue, alpha);
 					}
 					break;
 				case PIP:
@@ -570,7 +591,7 @@ public class GunItemRenderer
 							green,
 							blue,
 							aimingProgress,
-							PipItemLayer.isParallaxEnabled());
+							PipItemLayer.isParallaxEnabled() && !vrActive);
 					}
 					break;
 				case PIP_MASK:
@@ -580,7 +601,7 @@ public class GunItemRenderer
 					break;
 				case RETICLE:
 					boolean isParallaxEnabled = ReticleItemLayer.isParallaxEnabled();
-					if (isParallaxEnabled && bone.getName().equals("reticle")) {
+					if (isParallaxEnabled && bone.getName().equals("reticle") && !vrActive) {
 						this.renderReticleWithParallax(
 							poseStack,
 							bone,
@@ -663,13 +684,6 @@ public class GunItemRenderer
 												  .withPosition(new Vec3(position.x, position.y, position.z))
 												  .withVertexBuffer(buffer)
 												  .withLightColor(packedLight);
-
-				// for(MuzzleFlashEffect effect : this.gunClientState.getMuzzleFlashEffects()) {
-				//    UUID effectId = EffectRegistry.getEffectId(effect.getName());
-				//    if (Objects.equal(effectId, RenderPass.getEffectId())) {
-				//       effect.render(context);
-				//    }
-				// }
 
 				// avoid ConcurrentModificationException by not using ArrayList.iterator()
 				final var muzzleFlashEffects = this.gunClientState.getMuzzleFlashEffects();
