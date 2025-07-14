@@ -27,6 +27,7 @@ import mod.pbj.client.render.CrosshairRenderer;
 import mod.pbj.client.render.DefaultProjectileRenderer;
 import mod.pbj.client.render.RenderUtil;
 import mod.pbj.compat.playeranimator.PlayerAnimatorCompat;
+import mod.pbj.compat.vivecraft.VivecraftCompat;
 import mod.pbj.entity.EntityBuilder;
 import mod.pbj.entity.ProjectileBulletEntity;
 import mod.pbj.explosion.ExplosionEvent;
@@ -224,6 +225,8 @@ public class ClientEventHandler {
 			autoReload == AutoReload.SURVIVAL && !player.isCreative();
 	}
 
+	private static final VivecraftCompat vivecraft = VivecraftCompat.getInstance();
+
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event) {
 		Minecraft mc = Minecraft.getInstance();
@@ -320,11 +323,14 @@ public class ClientEventHandler {
 
 				this.leftMouseButtonDown = leftMouseButtonDown;
 				boolean rightMouseButtonDown = mc.options.keyUse.isDown();
-				if (rightMouseButtonDown && !this.rightMouseButtonDown) {
-					this.rightMouseButtonDown();
-				} else if (!rightMouseButtonDown && this.rightMouseButtonDown) {
-					this.rightMouseButtonRelease();
-				}
+				final var vrActive = vivecraft != null && vivecraft.isVrActive();
+				// maybe make this configurable if requested
+				if (!vrActive)
+					if (rightMouseButtonDown && !this.rightMouseButtonDown) {
+						this.rightMouseButtonDown();
+					} else if (!rightMouseButtonDown && this.rightMouseButtonDown) {
+						this.rightMouseButtonRelease();
+					}
 
 				GunClientState state = GunClientState.getMainHeldState();
 
@@ -410,6 +416,11 @@ public class ClientEventHandler {
 
 				if (this.inventorySlotChanged || this.currentSlotHasGunChanged) {
 					this.jumpController.reset();
+					// always aim in vr
+					// currentSlotHasGunChanged only lasts 1 tick, which the player has probably spent still in the
+					// inventory. maybe figure out a way to make it aim when it's first rendered instead of ticked
+					if (vrActive && heldItem.getItem() instanceof final GunItem gunItem && gunItem.isAimingEnabled())
+						this.toggleAiming(player, true);
 				}
 
 				this.leftMouseButtonDown = leftMouseButtonDown;
@@ -743,8 +754,12 @@ public class ClientEventHandler {
 						GunItem item = (GunItem)itemStack.getItem();
 						ResourceLocation scopeOverlay = item.getScopeOverlay();
 						if (event.getOverlay() == VanillaGuiOverlay.CROSSHAIR.type()) {
-							if (Config.crosshairType == CrosshairType.DEFAULT && !gunClientState.isAiming() &&
-								(gunClientState.isFiring() || gunClientState.isIdle())) {
+							final var shouldRender = Config.crosshairType == CrosshairType.DEFAULT &&
+													 !gunClientState.isAiming() &&
+													 (gunClientState.isFiring() || gunClientState.isIdle()) &&
+													 (vivecraft == null || !vivecraft.isVrActive());
+
+							if (shouldRender) {
 								float crossHairExpansionRate =
 									this.getCrosshairExpansionRatio(minecraft.player, gunClientState);
 								double originalAspectRatio = 1.0F;

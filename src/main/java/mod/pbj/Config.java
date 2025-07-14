@@ -10,36 +10,38 @@ import net.minecraftforge.fml.event.config.ModConfigEvent;
 @EventBusSubscriber(modid = "pointblank", bus = Bus.MOD)
 public class Config {
 	private static final Builder BUILDER = new Builder();
+	public static final ForgeConfigSpec SPEC;
+
 	public static final ConfigValue<AutoReload> AUTO_RELOAD;
 	private static final DoubleValue SCOPE_AIMING_MOUSE_SENSITIVITY;
 	private static final BooleanValue RESET_AUTO_FIRE_PITCH_ENABLED;
 	private static final DoubleValue KNOCKBACK;
 	private static final BooleanValue PARTICLE_EFFECTS_ENABLED;
-	public static final BooleanValue OVERWRITE_DISABLED;
+	private static final BooleanValue OVERWRITE_DISABLED;
 	private static final IntValue ARMS_DEALER_HOUSE_WEIGHT;
 	private static final DoubleValue EMERALD_EXCHANGE_RATE;
 	private static final BooleanValue THIRD_PERSON_ARM_POSE_ALWAYS_ON;
 	private static final IntValue PIP_SCOPE_REFRESH_FRAME;
-	public static final BooleanValue PIP_SCOPES_ENABLED;
+	private static final BooleanValue PIP_SCOPES_ENABLED;
 	private static final IntValue PIP_SCOPE_COLOR_BALANCE_RED;
 	private static final IntValue PIP_SCOPE_COLOR_BALANCE_GREEN;
 	private static final IntValue PIP_SCOPE_COLOR_BALANCE_BLUE;
-	public static final BooleanValue CUSTOM_SHADERS_ENABLED;
-	public static final BooleanValue EXPLOSION_DESTROY_BLOCKS_ENABLED;
+	private static final BooleanValue CUSTOM_SHADERS_ENABLED;
+	private static final BooleanValue EXPLOSION_DESTROY_BLOCKS_ENABLED;
 	private static final DoubleValue ITEM_DROP_CHANCE;
 	private static final IntValue MAX_ITEM_DROP_COUNT;
-	public static final BooleanValue BULLETS_BREAK_GLASS_ENABLED;
+	private static final BooleanValue BULLETS_BREAK_GLASS_ENABLED;
 	private static final DoubleValue HITSCAN_DAMAGE_MODIFIER;
 	private static final DoubleValue HEADSHOT_DAMAGE_MODIFIER;
-	public static final ConfigValue<CrosshairType> CROSSHAIR_TYPE;
-	public static final BooleanValue GORE_ENABLED;
-	public static final BooleanValue ADVANCE_IRIS_INTEGRATION_ENABLED;
-	public static final BooleanValue FIRST_PERSON_ANIMATIONS_ENABLED;
-	public static final BooleanValue THIRD_PERSON_ANIMATIONS_ENABLED;
+	private static final ConfigValue<CrosshairType> CROSSHAIR_TYPE;
+	private static final BooleanValue GORE_ENABLED;
+	private static final BooleanValue ADVANCE_IRIS_INTEGRATION_ENABLED;
+	private static final BooleanValue FIRST_PERSON_ANIMATIONS_ENABLED;
+	private static final BooleanValue THIRD_PERSON_ANIMATIONS_ENABLED;
 	public static final BooleanValue PLAYERHEADSHOTS;
 	public static final BooleanValue MOBHEADSHOTS;
-	static final ForgeConfigSpec SPEC;
-	private static final IntValue IFRAMES;
+	public static final IntValue IFRAMES;
+
 	public static AutoReload autoReload;
 	public static double scopeAimingMouseSensitivity;
 	public static boolean resetAutoFirePitchEnabled;
@@ -112,18 +114,17 @@ public class Config {
 											.define("resetAutoFirePitchEnabled", true);
 		KNOCKBACK = BUILDER
 						.comment(
-							"Adjusts the knockback force applied to entities hit by gunfire, with higher values "
-							+ "causing greater knockback distance.")
+							"Adjusts the knockback force applied to entities hit by gunfire, with higher values " +
+							"causing greater knockback distance.")
 						.defineInRange("knockback", 1.0D, 0.1D, 2.0D);
 		PARTICLE_EFFECTS_ENABLED = BUILDER.comment("Enables particle effects").define("particleEffectsEnabled", true);
 		OVERWRITE_DISABLED =
 			BUILDER.comment("Disables overwriting of the base content pack").define("allowBasePackOverwrite", false);
-		ARMS_DEALER_HOUSE_WEIGHT =
-			BUILDER
-				.comment(
-					"Sets the likelihood of an 'Arms Dealer' house appearing in new villages, "
-					+ "with higher values increasing frequency and lower values making it rarer.")
-				.defineInRange("armsDealerHouse", 10, 0, 20);
+		ARMS_DEALER_HOUSE_WEIGHT = BUILDER
+									   .comment(
+										   "Sets the likelihood of an 'Arms Dealer' house appearing in new villages, " +
+										   "with higher values increasing frequency and lower values making it rarer.")
+									   .defineInRange("armsDealerHouse", 10, 0, 20);
 		EMERALD_EXCHANGE_RATE =
 			BUILDER
 				.comment(
@@ -132,14 +133,14 @@ public class Config {
 		THIRD_PERSON_ARM_POSE_ALWAYS_ON =
 			BUILDER
 				.comment(
-					"Controls whether the player's arm pose is permanently set to the aiming/firing position in "
-					+ "third-person view, regardless of their current action with a gun.")
+					"Controls whether the player's arm pose is permanently set to the aiming/firing position in " +
+					"third-person view, regardless of their current action with a gun.")
 				.define("thirdPersonArmPoseAlwaysOn", true);
 		PIP_SCOPE_REFRESH_FRAME =
 			BUILDER
 				.comment(
-					"Specifies how often the \"picture-in-picture\" scope updates, with 1 being every frame, 2 for "
-					+ "every other frame, etc. A higher number may improve performance.")
+					"Specifies how often the \"picture-in-picture\" scope updates, with 1 being every frame, 2 for " +
+					"every other frame, etc. A higher number may improve performance.")
 				.defineInRange("pipScopeRefreshRate", 2, 0, 5);
 		PIP_SCOPES_ENABLED = BUILDER.comment("Enables pip scopes").define("pipScopesEnabled", true);
 		PIP_SCOPE_COLOR_BALANCE_RED =
@@ -177,10 +178,10 @@ public class Config {
 		PLAYERHEADSHOTS = BUILDER.comment("Enables player headshots, recommended to disable if using FirstAid")
 							  .define("playerHeadshots", true);
 		MOBHEADSHOTS = BUILDER.comment("Enables mob headshots").define("playerHeadshots", true);
+
 		SPEC = BUILDER.build();
 	}
 
 	public enum AutoReload { CREATIVE, SURVIVAL, ENABLED, DISABLED }
-
 	public enum CrosshairType { DEFAULT, VANILLA, DISABLED }
 }

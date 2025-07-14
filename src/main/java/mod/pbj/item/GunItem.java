@@ -1524,7 +1524,6 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 		double spawnDirectionZ,
 		int targetEntityId,
 		long requestSeed) {
-		LOGGER.debug("Handling client projectile file request");
 		ItemStack itemStack = player.getInventory().getItem(slotIndex);
 		AmmoItem projectileItem = this.getFirstCompatibleProjectile(itemStack, fireModeInstance);
 		if (projectileItem == null) {
@@ -1622,7 +1621,8 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 			AmmoItem projectileItem = this.getFirstCompatibleProjectile(itemStack, fireModeInstance);
 			if (projectileItem != null) {
 				LOGGER.error(
-					"Attempted to handle client hit scan fire request with an item that fires projectiles: " + this);
+					"Attempted to handle client hit scan fire request with "
+					+ "an item that fires projectiles: " + this);
 				return;
 			}
 
@@ -1665,7 +1665,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 						this.getDestroyBlockByHitScanPredicate(),
 						this.getPassThroughBlocksByHitScanPredicate(),
 						blockPosToDestroy));
-				} else { // bullet
+				} else { // PBJ code to fire projectile bullets instead of hitscan
 					BulletData modifiedBulletData = this.bulletData;
 					List<Features.EnabledFeature> modifiers =
 						Features.getEnabledFeatures(itemStack, BulletModifierFeature.class);

@@ -4,7 +4,6 @@ Pointblank: Jelly is a fork of the Vic's Point Blank mod by Vic4Games.
 1) Expand upon Pointblank's content pack features.
 2) Enhance compatibility with various other mods, namely VS2 and FirstAid style mods.
 3) Ensure compatibility with future versions of mods.
-
  
 ## Player Information
 This mod will be compatible with any 1.9.6 Pointblank packs.

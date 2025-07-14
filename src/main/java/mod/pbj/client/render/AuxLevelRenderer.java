@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.pbj.Config;
 import mod.pbj.compat.iris.IrisCompat;
+import mod.pbj.compat.vivecraft.VivecraftCompat;
 import mod.pbj.feature.PipFeature;
 import mod.pbj.item.GunItem;
 import mod.pbj.mixin.GameRendererAccessorMixin;
@@ -23,6 +24,8 @@ import software.bernie.geckolib.cache.object.GeoVertex;
 import software.bernie.geckolib.util.ClientUtils;
 
 public class AuxLevelRenderer {
+	private static final VivecraftCompat vivecraft = VivecraftCompat.getInstance();
+
 	private final RenderTarget renderTarget;
 	private int textureWidth;
 	private int textureHeight;
@@ -36,11 +39,21 @@ public class AuxLevelRenderer {
 	public AuxLevelRenderer(int textureWidth, int textureHeight) {
 		this.renderTarget = new TextureTarget(textureWidth, textureHeight, true, Minecraft.ON_OSX);
 		this.renderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-		this.textureWidth = textureWidth;
-		this.textureHeight = textureHeight;
+		setDimensions(this.renderTarget);
+	}
+
+	private void setDimensions(RenderTarget target) {
+		this.textureWidth = target.width;
+		this.textureHeight = target.height;
 	}
 
 	public RenderTarget getRenderTarget() {
+		if (vivecraft != null && vivecraft.isVrActive()) {
+			setDimensions(vivecraft.getTelescopeRenderTarget());
+			return vivecraft.getTelescopeRenderTarget();
+		}
+
+		setDimensions(this.renderTarget);
 		return this.renderTarget;
 	}
 
@@ -57,74 +70,78 @@ public class AuxLevelRenderer {
 	}
 
 	public void renderToTarget(float partialTick, long time, float zoom) {
-		Minecraft mc = Minecraft.getInstance();
-		if (!mc.noRender && mc.gameMode != null && mc.player != null) {
-			if (Config.pipScopesEnabled && this.frameCount % (long)Config.pipScopeRefreshFrame == 0L) {
-				this.isRenderingPip = true;
-				double d0 = ((GameRendererAccessorMixin)mc.gameRenderer)
-								.invokeGetFov(mc.gameRenderer.getMainCamera(), partialTick, true);
-				this.fov = d0 * (double)(1.0F - zoom);
-				this.cullFrustrumFov = 110.0F;
-				RenderTarget origTarget = mc.getMainRenderTarget();
-				MinecraftAccessorMixin mm = (MinecraftAccessorMixin)mc;
-				int[] viewport = new int[4];
-				GL11.glGetIntegerv(2978, viewport);
-				int originalWidth = mc.getWindow().getWidth();
-				int originalHeight = mc.getWindow().getHeight();
-				if (!origTarget.isStencilEnabled()) {
-					Player player = ClientUtils.getClientPlayer();
-					if (player != null) {
-						ItemStack itemStack = GunItem.getMainHeldGunItemStack(player);
-						if (itemStack != null && PipFeature.getMaskTexture(itemStack) != null) {
-							origTarget.enableStencil();
-						}
-					}
-				}
+		final var mc = Minecraft.getInstance();
 
-				if (this.renderTarget.width != origTarget.width || this.renderTarget.height != origTarget.height ||
-					this.isStencilEnabled != origTarget.isStencilEnabled()) {
-					this.renderTarget.resize(origTarget.width, origTarget.height, true);
-					this.textureWidth = originalWidth;
-					this.textureHeight = originalHeight;
-					if (origTarget.isStencilEnabled()) {
-						this.renderTarget.enableStencil();
-					}
-				}
+		final var shouldRender = !mc.noRender && mc.gameMode != null && mc.player != null && Config.pipScopesEnabled &&
+								 this.frameCount % (long)Config.pipScopeRefreshFrame == 0L &&
+								 (vivecraft == null || !vivecraft.isVrActive());
 
-				this.isStencilEnabled = origTarget.isStencilEnabled();
-				mc.getMainRenderTarget().unbindWrite();
-				mc.getMainRenderTarget().clear(false);
-				mm.setMainRenderTarget(this.renderTarget);
-				this.renderTarget.bindWrite(true);
+		if (!shouldRender)
+			return;
 
-				try {
-					mc.gameRenderer.setPanoramicMode(true);
-					mc.gameRenderer.setRenderBlockOutline(false);
-					mc.gameRenderer.setRenderHand(false);
-					RenderSystem.clear(0, Minecraft.ON_OSX);
-					this.renderTarget.clear(false);
-					this.renderTarget.bindWrite(false);
-					mc.gameRenderer.renderLevel(partialTick, time + 10000L, new PoseStack());
-				} finally {
-					mc.gameRenderer.setPanoramicMode(false);
-					mc.gameRenderer.setRenderBlockOutline(true);
-					mc.gameRenderer.setRenderHand(true);
-					mc.getMainRenderTarget().unbindWrite();
-					mm.setMainRenderTarget(origTarget);
-					RenderSystem.clear(0, Minecraft.ON_OSX);
-					mc.getMainRenderTarget().clear(true);
-					mc.getMainRenderTarget().bindWrite(true);
-					this.isRenderingPip = false;
+		this.isRenderingPip = true;
+		double d0 = ((GameRendererAccessorMixin)mc.gameRenderer)
+						.invokeGetFov(mc.gameRenderer.getMainCamera(), partialTick, true);
+		this.fov = d0 * (double)(1.0F - zoom);
+		this.cullFrustrumFov = 110.0F;
+		RenderTarget origTarget = mc.getMainRenderTarget();
+		MinecraftAccessorMixin mm = (MinecraftAccessorMixin)mc;
+		int[] viewport = new int[4];
+		GL11.glGetIntegerv(2978, viewport);
+		int originalWidth = mc.getWindow().getWidth();
+		int originalHeight = mc.getWindow().getHeight();
+		if (!origTarget.isStencilEnabled()) {
+			Player player = ClientUtils.getClientPlayer();
+			if (player != null) {
+				ItemStack itemStack = GunItem.getMainHeldGunItemStack(player);
+				if (itemStack != null && PipFeature.getMaskTexture(itemStack) != null) {
+					origTarget.enableStencil();
 				}
+			}
+		}
 
-				IrisCompat irisCompat = IrisCompat.getInstance();
-				if (irisCompat.isIrisLoaded() && irisCompat.isShaderPackEnabled()) {
-					GL11.glDepthMask(true);
-					GL11.glClear(17664);
-					if (ClientUtils.getLevel().dimension() != Level.NETHER) {
-						GL11.glDepthMask(false);
-					}
-				}
+		if (this.renderTarget.width != origTarget.width || this.renderTarget.height != origTarget.height ||
+			this.isStencilEnabled != origTarget.isStencilEnabled()) {
+			this.renderTarget.resize(origTarget.width, origTarget.height, true);
+			this.textureWidth = originalWidth;
+			this.textureHeight = originalHeight;
+			if (origTarget.isStencilEnabled()) {
+				this.renderTarget.enableStencil();
+			}
+		}
+
+		this.isStencilEnabled = origTarget.isStencilEnabled();
+		mc.getMainRenderTarget().unbindWrite();
+		mc.getMainRenderTarget().clear(false);
+		mm.setMainRenderTarget(this.renderTarget);
+		this.renderTarget.bindWrite(true);
+
+		try {
+			mc.gameRenderer.setPanoramicMode(true);
+			mc.gameRenderer.setRenderBlockOutline(false);
+			mc.gameRenderer.setRenderHand(false);
+			RenderSystem.clear(0, Minecraft.ON_OSX);
+			this.renderTarget.clear(false);
+			this.renderTarget.bindWrite(false);
+			mc.gameRenderer.renderLevel(partialTick, time + 10000L, new PoseStack());
+		} finally {
+			mc.gameRenderer.setPanoramicMode(false);
+			mc.gameRenderer.setRenderBlockOutline(true);
+			mc.gameRenderer.setRenderHand(true);
+			mc.getMainRenderTarget().unbindWrite();
+			mm.setMainRenderTarget(origTarget);
+			RenderSystem.clear(0, Minecraft.ON_OSX);
+			mc.getMainRenderTarget().clear(true);
+			mc.getMainRenderTarget().bindWrite(true);
+			this.isRenderingPip = false;
+		}
+
+		IrisCompat irisCompat = IrisCompat.getInstance();
+		if (irisCompat.isIrisLoaded() && irisCompat.isShaderPackEnabled()) {
+			GL11.glDepthMask(true);
+			GL11.glClear(17664);
+			if (ClientUtils.getLevel().dimension() != Level.NETHER) {
+				GL11.glDepthMask(false);
 			}
 		}
 	}
