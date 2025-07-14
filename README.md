@@ -1,13 +1,9 @@
 Pointblank: Jelly is a fork of the Vic's Point Blank mod by Vic4Games.
 
-## `vivecraft-compat`
-This branch contains code specific to playing with [a specific fork of Vivecraft](https://github.com/trustytrojan/VivecraftMod/tree/pointblank-1.20) that creates a *surprisingly* immersive VR-shooter experience. Due to the nature of the code changes, however, this needs to exist as a separate branch as it breaks non-VR functionality.
-
 ## Project Goals
 1) Expand upon Pointblank's content pack features.
 2) Enhance compatibility with various other mods, namely VS2 and FirstAid style mods.
 3) Ensure compatibility with future versions of mods.
-
  
 ## Player Information
 This mod will be compatible with any 1.9.6 Pointblank packs.

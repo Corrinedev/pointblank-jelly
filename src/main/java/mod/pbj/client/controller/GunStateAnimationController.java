@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -68,8 +69,12 @@ public class GunStateAnimationController extends AnimationController<GunItem> im
 			GunStateAnimationController controller = this.getThisController(state);
 
 			while (!controller.pendingActions.isEmpty()) {
-				Action action = controller.pendingActions.removeFirst();
-				action.execute(state);
+				try {
+					Action action = controller.pendingActions.removeFirst();
+					action.execute(state);
+				} catch (final NoSuchElementException e) {
+					// race condition, let the loop check again
+				}
 			}
 
 			ItemDisplayContext perspective = state.getData(DataTickets.ITEM_RENDER_PERSPECTIVE);

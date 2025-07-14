@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.pbj.Config;
 import mod.pbj.compat.iris.IrisCompat;
+import mod.pbj.compat.vivecraft.VivecraftCompat;
 import mod.pbj.feature.PipFeature;
 import mod.pbj.item.GunItem;
 import mod.pbj.mixin.GameRendererAccessorMixin;
@@ -18,13 +19,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
-import org.vivecraft.api_beta.client.VivecraftClientAPI;
-import org.vivecraft.client_vr.ClientDataHolderVR;
 import software.bernie.geckolib.cache.object.GeoQuad;
 import software.bernie.geckolib.cache.object.GeoVertex;
 import software.bernie.geckolib.util.ClientUtils;
 
 public class AuxLevelRenderer {
+	private static final VivecraftCompat vivecraft = VivecraftCompat.getInstance();
+
 	private final RenderTarget renderTarget;
 	private int textureWidth;
 	private int textureHeight;
@@ -38,20 +39,22 @@ public class AuxLevelRenderer {
 	public AuxLevelRenderer(int textureWidth, int textureHeight) {
 		this.renderTarget = new TextureTarget(textureWidth, textureHeight, true, Minecraft.ON_OSX);
 		this.renderTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
-		this.textureWidth = textureWidth;
-		this.textureHeight = textureHeight;
+		setDimensions(this.renderTarget);
+	}
+
+	private void setDimensions(RenderTarget target) {
+		this.textureWidth = target.width;
+		this.textureHeight = target.height;
 	}
 
 	public RenderTarget getRenderTarget() {
-		/**
-		 * vivecraft-compat: unfortunately i don't think there's a way to dynamically
-		 * switch between RenderTargets here, as this method seems to be called only
-		 * once and the caller just saves and reuses the RenderTarget it got. plus,
-		 * i don't think VR players have the need to switch between playing normally
-		 * and in VR...? so while this works perfectly for VR, it looks like this branch
-		 * will have to coexist with master; it can't be merged in this state.
-		 */
-		return vivecraftClient.vrRenderer.telescopeFramebufferR;
+		if (vivecraft != null && vivecraft.isVrActive()) {
+			setDimensions(vivecraft.getTelescopeRenderTarget());
+			return vivecraft.getTelescopeRenderTarget();
+		}
+
+		setDimensions(this.renderTarget);
+		return this.renderTarget;
 	}
 
 	public boolean isRenderingPip() {
@@ -66,15 +69,12 @@ public class AuxLevelRenderer {
 		return this.cullFrustrumFov;
 	}
 
-	private static final VivecraftClientAPI vivecraft = VivecraftClientAPI.getInstance();
-	private static final ClientDataHolderVR vivecraftClient = ClientDataHolderVR.getInstance();
-
 	public void renderToTarget(float partialTick, long time, float zoom) {
 		final var mc = Minecraft.getInstance();
 
 		final var shouldRender = !mc.noRender && mc.gameMode != null && mc.player != null && Config.pipScopesEnabled &&
 								 this.frameCount % (long)Config.pipScopeRefreshFrame == 0L &&
-								 vivecraft.isVanillaRenderPass();
+								 (vivecraft == null || !vivecraft.isVrActive());
 
 		if (!shouldRender)
 			return;

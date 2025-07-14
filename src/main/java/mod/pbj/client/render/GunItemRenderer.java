@@ -22,6 +22,7 @@ import mod.pbj.client.model.GunGeoModel;
 import mod.pbj.client.render.layer.*;
 import mod.pbj.client.uv.SpriteUVProvider;
 import mod.pbj.compat.iris.IrisCompat;
+import mod.pbj.compat.vivecraft.VivecraftCompat;
 import mod.pbj.feature.*;
 import mod.pbj.item.GunItem;
 import mod.pbj.mixin.BakedModelMixin;
@@ -48,7 +49,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.SeparateTransformsModel;
 import org.joml.*;
 import org.lwjgl.opengl.GL30;
-import org.vivecraft.api_beta.client.VivecraftClientAPI;
 
 import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.*;
@@ -525,6 +525,8 @@ public class GunItemRenderer
 			alpha);
 	}
 
+	private static final VivecraftCompat vivecraft = VivecraftCompat.getInstance();
+
 	public void renderCubesOfBone(
 		PoseStack poseStack,
 		GeoBone bone,
@@ -539,7 +541,7 @@ public class GunItemRenderer
 		// regardless of whether we are in VR or not
 		if (ClientSystem.getInstance().getAuxLevelRenderer().isRenderingPip())
 			return;
-		final var vrActive = VivecraftClientAPI.getInstance().isVrActive();
+		final var vrActive = vivecraft != null && vivecraft.isVrActive();
 		RenderPass renderPass = RenderPass.current();
 		if (this.shouldRenderBone(bone.getName())) {
 			HierarchicalRenderContext hrc = HierarchicalRenderContext.current();

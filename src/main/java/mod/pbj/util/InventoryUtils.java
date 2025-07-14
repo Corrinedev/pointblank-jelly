@@ -22,7 +22,11 @@ public class InventoryUtils {
 	getItemStackByStateId(Player player, UUID gunStateId, int slotIndex) {
 		ItemStack targetStack = null;
 		GunClientState targetGunState = null;
-		ItemStack itemStack = player.getInventory().getItem(slotIndex);
+		final var inventory = player.getInventory();
+		if (slotIndex < 0 || slotIndex >= inventory.getContainerSize())
+			// would rather not throw ArrayOutOfBoundsExceptions
+			return null;
+		ItemStack itemStack = inventory.getItem(slotIndex);
 		boolean isOffhand = player.getOffhandItem() == itemStack;
 		if (itemStack.getItem() instanceof GunItem) {
 			GunClientState gunClientState = GunClientState.getState(player, itemStack, slotIndex, isOffhand);

@@ -27,6 +27,7 @@ import mod.pbj.client.render.CrosshairRenderer;
 import mod.pbj.client.render.DefaultProjectileRenderer;
 import mod.pbj.client.render.RenderUtil;
 import mod.pbj.compat.playeranimator.PlayerAnimatorCompat;
+import mod.pbj.compat.vivecraft.VivecraftCompat;
 import mod.pbj.entity.EntityBuilder;
 import mod.pbj.entity.ProjectileBulletEntity;
 import mod.pbj.explosion.ExplosionEvent;
@@ -92,7 +93,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.joml.Quaternionf;
 import org.joml.Vector2ic;
-import org.vivecraft.api_beta.client.VivecraftClientAPI;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -225,6 +225,8 @@ public class ClientEventHandler {
 			autoReload == AutoReload.SURVIVAL && !player.isCreative();
 	}
 
+	private static final VivecraftCompat vivecraft = VivecraftCompat.getInstance();
+
 	@SubscribeEvent
 	public void onClientTick(TickEvent.ClientTickEvent event) {
 		Minecraft mc = Minecraft.getInstance();
@@ -321,7 +323,7 @@ public class ClientEventHandler {
 
 				this.leftMouseButtonDown = leftMouseButtonDown;
 				boolean rightMouseButtonDown = mc.options.keyUse.isDown();
-				final var vrActive = VivecraftClientAPI.getInstance().isVrActive();
+				final var vrActive = vivecraft != null && vivecraft.isVrActive();
 				// maybe make this configurable if requested
 				if (!vrActive)
 					if (rightMouseButtonDown && !this.rightMouseButtonDown) {
@@ -752,8 +754,12 @@ public class ClientEventHandler {
 						GunItem item = (GunItem)itemStack.getItem();
 						ResourceLocation scopeOverlay = item.getScopeOverlay();
 						if (event.getOverlay() == VanillaGuiOverlay.CROSSHAIR.type()) {
-							if (Config.crosshairType == CrosshairType.DEFAULT && !gunClientState.isAiming() &&
-								(gunClientState.isFiring() || gunClientState.isIdle())) {
+							final var shouldRender = Config.crosshairType == CrosshairType.DEFAULT &&
+													 !gunClientState.isAiming() &&
+													 (gunClientState.isFiring() || gunClientState.isIdle()) &&
+													 (vivecraft == null || !vivecraft.isVrActive());
+
+							if (shouldRender) {
 								float crossHairExpansionRate =
 									this.getCrosshairExpansionRatio(minecraft.player, gunClientState);
 								double originalAspectRatio = 1.0F;
