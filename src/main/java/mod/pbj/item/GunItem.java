@@ -90,6 +90,7 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
+import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -146,6 +147,8 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 		RawAnimation.begin().thenPlay("animation.model.runningstart");
 	public static final RawAnimation RAW_ANIMATION_COMPLETE_RUNNING =
 		RawAnimation.begin().thenPlay("animation.model.runningend");
+	public static final RawAnimation RAW_ANIMATION_ACTIVE =
+			RawAnimation.begin().thenLoop("animation.model.active");
 	public static final RawAnimation RAW_ANIMATION_RUNNING = RawAnimation.begin().thenPlay("animation.model.running");
 	private static final List<ResourceLocation> FALLBACK_COMMON_ANIMATIONS =
 		List.of(ResourceLocation.fromNamespaceAndPath("pointblank", "common"));
@@ -808,6 +811,10 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 									}
 								}
 							}));
+
+		controllers.add(new BlendingAnimationController<>(this, "active", 0, false, state -> {
+			return state.setAndContinue(RAW_ANIMATION_ACTIVE);
+		}));
 
 		for (GunStateAnimationController reloadAnimationController : this.createReloadAnimationControllers()) {
 			controllers.add(reloadAnimationController);
@@ -2117,7 +2124,7 @@ public class GunItem extends HurtingItem implements ScriptHolder, Craftable, Att
 				reloadAnimationControllers.add(reloadAnimationController);
 			}
 		}
-
+		Collections.shuffle(reloadAnimationControllers);
 		return reloadAnimationControllers;
 	}
 

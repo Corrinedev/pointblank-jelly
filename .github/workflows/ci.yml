@@ -23,4 +23,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pointblank-jelly
-          path: build/libs/pointblank-*-all.jar
+          path: build/libs/*.jar
