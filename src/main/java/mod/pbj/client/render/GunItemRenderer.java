@@ -47,9 +47,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.SeparateTransformsModel;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joml.*;
 import org.lwjgl.opengl.GL30;
-
 import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.cache.object.*;
 import software.bernie.geckolib.model.GeoModel;
@@ -303,6 +304,8 @@ public class GunItemRenderer
 		}
 	}
 
+	private static final Logger LOGGER = LogManager.getLogger("pointblank");
+
 	public void createVerticesOfQuad(
 		GeoQuad quad,
 		Matrix4f poseState,
@@ -345,30 +348,38 @@ public class GunItemRenderer
 				}
 
 				// kept getting IllegalStateException from the (BufferBuilder/VertexConsumer).vertex method
-				// retrying solves the issue
-				try {
-					buffer.vertex(
-						vector4f.x(),
-						vector4f.y(),
-						vector4f.z(),
-						red,
-						green,
-						blue,
-						alpha,
-						texU,
-						texV,
-						packedOverlay,
-						packedLight,
-						normal.x(),
-						normal.y(),
-						normal.z());
-				} catch (final IllegalStateException e) {
-					final var player = Minecraft.getInstance().player;
-					if (player != null)
-						player.sendSystemMessage(Component.nullToEmpty(
-							"[GunItemRenderer.createVerticesOfQuad] buffer.vertex() failed, retrying"));
-					--i;
-					continue;
+				// retrying solves the issue, but we don't want to infinite loop, so limit the attempts.
+				final var MAX_ATTEMPTS = 30;
+				int attempts = 0;
+				while (attempts < MAX_ATTEMPTS)
+					try {
+						buffer.vertex(
+							vector4f.x(),
+							vector4f.y(),
+							vector4f.z(),
+							red,
+							green,
+							blue,
+							alpha,
+							texU,
+							texV,
+							packedOverlay,
+							packedLight,
+							normal.x(),
+							normal.y(),
+							normal.z());
+						break;
+					} catch (final IllegalStateException e) {
+						LOGGER.warn(
+							"[GunItemRenderer.createVerticesOfQuad] failed to add vertex to buffer, retrying {}/{}",
+							++attempts,
+							MAX_ATTEMPTS);
+					}
+
+				if (attempts >= MAX_ATTEMPTS) {
+					LOGGER.error(
+						"[GunItemRenderer.createVerticesOfQuad] failed to add vertex to buffer after {} attempts!",
+						MAX_ATTEMPTS);
 				}
 			}
 		}
